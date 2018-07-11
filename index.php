@@ -217,36 +217,6 @@ $route->put('/api/maintain/{id}', 'maintenanceCtrl@update');
 $route->delete('/api/maintain/{id}', 'maintenanceCtrl@delete');
 
 
-$route->get('/except', function() {
-
-	$db = new Database();
-	$db->table = 'lang';
-
-
-
-
-	function checkNum($number) {
-	if($number>1) {
-    	throw new Exception("Value must be 1 or below");
-	}
-		return true;
-	}
-
-//trigger exception in a "try" block
-try {
-  checkNum(3);
-  //If the exception is thrown, this text will not be shown
-  echo 'If you see this, the number is 1 or below';
-}
-
-//catch exception
-catch(Exception $e) {
-  echo 'Message: ' . $e->getMessage();
-}
-
-});
-
-
 
 $route->otherwise( function() {
 
