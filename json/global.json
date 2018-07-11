@@ -1,0 +1,676 @@
+{
+    "bodystyle": {
+        "en": "Body Style",
+        "ar": "نمط الجسم",
+        "list": [
+            {
+                "id": "40",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "ATV",
+                "titleAR": "ATV",
+                "status": "1"
+            },
+            {
+                "id": "42",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Caravan",
+                "titleAR": "المنزل المتنقل",
+                "status": "1"
+            },
+            {
+                "id": "43",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Cargo",
+                "titleAR": "حمولة",
+                "status": "1"
+            },
+            {
+                "id": "44",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Convertible",
+                "titleAR": "قابل للتحويل",
+                "status": "1"
+            },
+            {
+                "id": "45",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Coupe",
+                "titleAR": "كوبيه",
+                "status": "1"
+            },
+            {
+                "id": "46",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Crossover",
+                "titleAR": "عبور",
+                "status": "1"
+            },
+            {
+                "id": "47",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Golf",
+                "titleAR": "جولف",
+                "status": "1"
+            },
+            {
+                "id": "48",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Cart",
+                "titleAR": "عربة التسوق",
+                "status": "1"
+            },
+            {
+                "id": "49",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Hatchback",
+                "titleAR": "هاتشباك",
+                "status": "1"
+            },
+            {
+                "id": "50",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Hatchback 4",
+                "titleAR": "هاتشباك 4",
+                "status": "1"
+            },
+            {
+                "id": "51",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Doors",
+                "titleAR": "الأبواب",
+                "status": "1"
+            },
+            {
+                "id": "52",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Hybrid",
+                "titleAR": "هجين",
+                "status": "1"
+            },
+            {
+                "id": "53",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Jeep",
+                "titleAR": "جيب",
+                "status": "1"
+            },
+            {
+                "id": "54",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Micro Van",
+                "titleAR": "مايكرو فان",
+                "status": "1"
+            },
+            {
+                "id": "55",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Mini Cargo",
+                "titleAR": "ميني البضائع",
+                "status": "1"
+            },
+            {
+                "id": "56",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Mini SUV",
+                "titleAR": "ميني سوف",
+                "status": "1"
+            },
+            {
+                "id": "57",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Pickup Double Cab",
+                "titleAR": "بيك اب مزدوجة الكابينة",
+                "status": "1"
+            },
+            {
+                "id": "58",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Pickup Single Cab",
+                "titleAR": "لاقط واحد الكابينة",
+                "status": "1"
+            },
+            {
+                "id": "59",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Sedan",
+                "titleAR": "سيارة",
+                "status": "1"
+            },
+            {
+                "id": "60",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Sedan Sports",
+                "titleAR": "سيدان الرياضة",
+                "status": "1"
+            },
+            {
+                "id": "61",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "SUV",
+                "titleAR": "SUV",
+                "status": "1"
+            },
+            {
+                "id": "62",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Truck",
+                "titleAR": "شاحنة",
+                "status": "1"
+            },
+            {
+                "id": "63",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Van",
+                "titleAR": "سيارة نقل",
+                "status": "1"
+            },
+            {
+                "id": "64",
+                "g_id": "23",
+                "g_slug": "bodystyle",
+                "titleEN": "Wagon",
+                "titleAR": "عربة",
+                "status": "1"
+            }
+        ]
+    },
+    "fuel": {
+        "en": "Fuel",
+        "ar": "وقود",
+        "list": [
+            {
+                "id": "106",
+                "g_id": "24",
+                "g_slug": "fuel",
+                "titleEN": "Patrol",
+                "titleAR": "دورية",
+                "status": "1"
+            },
+            {
+                "id": "107",
+                "g_id": "24",
+                "g_slug": "fuel",
+                "titleEN": "Diesel",
+                "titleAR": "ديزل",
+                "status": "1"
+            },
+            {
+                "id": "108",
+                "g_id": "24",
+                "g_slug": "fuel",
+                "titleEN": "Electric",
+                "titleAR": "كهربائي",
+                "status": "1"
+            },
+            {
+                "id": "109",
+                "g_id": "24",
+                "g_slug": "fuel",
+                "titleEN": "Gasoline",
+                "titleAR": "الغازولين",
+                "status": "1"
+            },
+            {
+                "id": "110",
+                "g_id": "24",
+                "g_slug": "fuel",
+                "titleEN": "Hybrid",
+                "titleAR": "هجين",
+                "status": "1"
+            }
+        ]
+    },
+    "engine": {
+        "en": "Engine",
+        "ar": "محرك",
+        "list": [
+            {
+                "id": "103",
+                "g_id": "25",
+                "g_slug": "engine",
+                "titleEN": "2 Cylenders",
+                "titleAR": "2 اسطوانات",
+                "status": "1"
+            },
+            {
+                "id": "104",
+                "g_id": "25",
+                "g_slug": "engine",
+                "titleEN": "4 Cylenders",
+                "titleAR": "4 سلندرات",
+                "status": "1"
+            },
+            {
+                "id": "105",
+                "g_id": "25",
+                "g_slug": "engine",
+                "titleEN": "Others",
+                "titleAR": "الآخرين",
+                "status": "1"
+            }
+        ]
+    },
+    "makers": {
+        "en": "Makers",
+        "ar": "صناع",
+        "list": [
+            {
+                "id": "66",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "BMW",
+                "titleAR": "BMW",
+                "status": "1"
+            },
+            {
+                "id": "67",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Bugatti",
+                "titleAR": "بوجاتي",
+                "status": "1"
+            },
+            {
+                "id": "68",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Chery",
+                "titleAR": "شيري",
+                "status": "1"
+            },
+            {
+                "id": "69",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Chevtolet",
+                "titleAR": "Chevtolet",
+                "status": "1"
+            },
+            {
+                "id": "70",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Carvette",
+                "titleAR": "Carvette",
+                "status": "1"
+            },
+            {
+                "id": "71",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Daihatsu",
+                "titleAR": "دايهاتسو",
+                "status": "1"
+            },
+            {
+                "id": "72",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Datsun",
+                "titleAR": "داتسون",
+                "status": "1"
+            },
+            {
+                "id": "73",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Dodge",
+                "titleAR": "Dodge",
+                "status": "1"
+            },
+            {
+                "id": "74",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Ferrari",
+                "titleAR": "فيراري",
+                "status": "1"
+            },
+            {
+                "id": "75",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Fiat",
+                "titleAR": "Fiat",
+                "status": "1"
+            },
+            {
+                "id": "76",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Ford",
+                "titleAR": "Ford",
+                "status": "1"
+            },
+            {
+                "id": "77",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Honda",
+                "titleAR": "هوندا",
+                "status": "1"
+            },
+            {
+                "id": "78",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Hyundai",
+                "titleAR": "هيونداي",
+                "status": "1"
+            },
+            {
+                "id": "79",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Infinity",
+                "titleAR": "Infinity",
+                "status": "1"
+            },
+            {
+                "id": "80",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Isuzu",
+                "titleAR": "ايسوزو",
+                "status": "1"
+            },
+            {
+                "id": "81",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Jaguar",
+                "titleAR": "Jaguar",
+                "status": "1"
+            },
+            {
+                "id": "82",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "KIA",
+                "titleAR": "KIA",
+                "status": "1"
+            },
+            {
+                "id": "83",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Lamborghini",
+                "titleAR": "لامبورغيني",
+                "status": "1"
+            },
+            {
+                "id": "84",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Land Rover",
+                "titleAR": "روفر لاند",
+                "status": "1"
+            },
+            {
+                "id": "85",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Lexus",
+                "titleAR": "لكزس",
+                "status": "1"
+            },
+            {
+                "id": "86",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Suzuki",
+                "titleAR": "سوزوكي",
+                "status": "1"
+            },
+            {
+                "id": "87",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Toyota",
+                "titleAR": "تويوتا",
+                "status": "1"
+            },
+            {
+                "id": "88",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "McLaren",
+                "titleAR": "ماكلارين",
+                "status": "1"
+            },
+            {
+                "id": "89",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Mercedez Benz",
+                "titleAR": "ميرسيديز بنز",
+                "status": "1"
+            },
+            {
+                "id": "90",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Mini",
+                "titleAR": "Mini",
+                "status": "1"
+            },
+            {
+                "id": "91",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Morgan",
+                "titleAR": "مورغان",
+                "status": "1"
+            },
+            {
+                "id": "92",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Nissan",
+                "titleAR": "نيسان",
+                "status": "1"
+            },
+            {
+                "id": "93",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Opel",
+                "titleAR": "أوبل",
+                "status": "1"
+            },
+            {
+                "id": "94",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Porche",
+                "titleAR": "بورشه",
+                "status": "1"
+            },
+            {
+                "id": "95",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Sukuki",
+                "titleAR": "Sukuki",
+                "status": "1"
+            },
+            {
+                "id": "96",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Volkswagon",
+                "titleAR": "فولكسفاغن",
+                "status": "1"
+            },
+            {
+                "id": "97",
+                "g_id": "26",
+                "g_slug": "makers",
+                "titleEN": "Volvo",
+                "titleAR": "فولفو",
+                "status": "1"
+            }
+        ]
+    },
+    "transmission": {
+        "en": "Transmission",
+        "ar": "نقل",
+        "list": [
+            {
+                "id": "98",
+                "g_id": "27",
+                "g_slug": "transmission",
+                "titleEN": "Automatic",
+                "titleAR": "تلقائي",
+                "status": "1"
+            },
+            {
+                "id": "99",
+                "g_id": "27",
+                "g_slug": "transmission",
+                "titleEN": "Manual",
+                "titleAR": "كتيب",
+                "status": "1"
+            }
+        ]
+    },
+    "drivetrain": {
+        "en": "Drive Train",
+        "ar": "محرك القطار",
+        "list": [
+            {
+                "id": "100",
+                "g_id": "28",
+                "g_slug": "drivetrain",
+                "titleEN": "2 Wheels",
+                "titleAR": "2 عجلات",
+                "status": "1"
+            },
+            {
+                "id": "101",
+                "g_id": "28",
+                "g_slug": "drivetrain",
+                "titleEN": "4 Wheels",
+                "titleAR": "4 عجلات",
+                "status": "1"
+            },
+            {
+                "id": "102",
+                "g_id": "28",
+                "g_slug": "drivetrain",
+                "titleEN": "All Wheels",
+                "titleAR": "جميع العجلات",
+                "status": "1"
+            }
+        ]
+    },
+    "options": {
+        "en": "Options",
+        "ar": "خيارات",
+        "list": [
+            {
+                "id": "111",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "AUX Input",
+                "titleAR": "مدخل أوكس",
+                "status": "1"
+            },
+            {
+                "id": "112",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Backup Camera",
+                "titleAR": "كاميرا احتياطية",
+                "status": "1"
+            },
+            {
+                "id": "113",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Bluetooth",
+                "titleAR": "بلوتوث",
+                "status": "1"
+            },
+            {
+                "id": "114",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Heated Seats",
+                "titleAR": "مقاعد ساخنة",
+                "status": "1"
+            },
+            {
+                "id": "115",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Leather Seats",
+                "titleAR": "مقاعد جلدية",
+                "status": "1"
+            },
+            {
+                "id": "116",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Navigations",
+                "titleAR": "التنقل",
+                "status": "1"
+            },
+            {
+                "id": "117",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Parking Sensors",
+                "titleAR": "أجهزة الاستشعار وقوف السيارات",
+                "status": "1"
+            },
+            {
+                "id": "118",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Sun Roof",
+                "titleAR": "فتحة سقف",
+                "status": "1"
+            },
+            {
+                "id": "119",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "USB Input",
+                "titleAR": "مدخل أوسب",
+                "status": "1"
+            },
+            {
+                "id": "120",
+                "g_id": "29",
+                "g_slug": "options",
+                "titleEN": "Third Row Seats",
+                "titleAR": "مقاعد الصف الثالث",
+                "status": "1"
+            }
+        ]
+    }
+}
