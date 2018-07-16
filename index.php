@@ -149,6 +149,8 @@ $route->get('/api/vehicles/{id}', 'vehiclesCtrl@single');
 
 $route->post('/api/vehicles', 'vehiclesCtrl@save');
 
+$route->post('api/vehicles/uploadslides/{vehicle_id}', 'vehiclesCtrl@manageSlides');
+
 $route->post('/api/vehicles/d', 'vehiclesCtrl@saved');
 
 $route->put('/api/vehicles/{id}', 'vehiclesCtrl@update');
@@ -206,7 +208,6 @@ $route->delete('/api/vfinance/{id}', 'vFinanceCtrl@delete');
 $route->get('/checkuser', 'testCtrl@checkUserInfo');
 
 
-
 // maintenance
 $route->get('/api/maintain/{id}', 'maintenanceCtrl@index');
 
@@ -215,8 +216,6 @@ $route->post('/api/maintain', 'maintenanceCtrl@save');
 $route->put('/api/maintain/{id}', 'maintenanceCtrl@update');
 
 $route->delete('/api/maintain/{id}', 'maintenanceCtrl@delete');
-
-
 
 $route->otherwise( function() {
 

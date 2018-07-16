@@ -303,10 +303,17 @@ class vehiclesCtrl extends appCtrl {
 					if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) 
 					{
 		     			
+						
 						$photoKey = array('photo'=> $filename);
-
 						$this->DB->update($photoKey, $lastID);
 		     			$data['message'] = 'uploaded to server';
+		     			if( !mkdir('uploads/'.$lastID, 0777, true) )
+		     			{
+		     				$data['message'] .= " but failed to create a directory for slides";
+		     			}
+		     			else {
+		     				$data['message'] .= " and slides directory created ";
+		     			}
 		     			$statusCode = 200;
 
 		    		} else {
@@ -344,6 +351,7 @@ class vehiclesCtrl extends appCtrl {
 
 						$data['status'] = true;
 						$data['message'] = 'New Record added to database with options';
+						$data['last_id'] = $lastID;
 						$statusCode = 200;
 
 					}
@@ -546,17 +554,73 @@ class vehiclesCtrl extends appCtrl {
 
 	}
 
-	public function customQuery()
+	public function manageSlides()
 	{
-		
-		/*
-			http://api.haladrive.local/api/vehicles/q/?name=me&price=300&mileage=300&options[]=apple&options[]=banana&brand=toyota&model=aqua%20ES
-			
-		*/
+		if( isset($_FILES['file']['name'] ) && isset(Route::$params['vehicle_id']) ) 
+			{
 
-		print_r($_GET);
+				$last_id = Route::$params['vehicle_id'];
+				$target_dir = "uploads/{$last_id}/";
+				$filename = $last_id.'_'.basename($_FILES['file']["name"]);
+				$target_file = $target_dir.$filename;
 
+				if ( is_dir($target_dir) || mkdir($target_dir, 0777, true) ) 
+				{
+
+					if(!file_exists($target_file))
+					{
+						if (move_uploaded_file($_FILES['file']["tmp_name"], $target_file)) 
+						{
+							
+
+							// record entry in database
+
+							$db = new Database();
+							$db->table = 'slides';
+							$keys = array(
+								'vehicle_id' => $last_id,
+								'slide_large' => mysqli_real_escape_string($db->connection, $filename),
+								'status'=> 1,
+								'label'=> 'default',
+								'slide_order'=> 1
+							);
+
+
+							if( $lastSlide = $db->insert($keys) )
+							{
+								$data['message'] = 'record added and uploaded to server';
+			     				$statusCode = 200;	
+							}
+							else {
+								$data['message'] = 'Image uploaded with cannot add dababase entry please try again';
+								$data['debug'] = $db;
+			     				$statusCode = 500;
+							}
+			     			
+
+			    		} else {
+				        	$data['message'] = 'image was not uploaded to server';
+				        	$statusCode = 500;
+			    		}	
+					} else {
+
+						$data['message'] = 'File already exist';
+				        $statusCode = 500;
+					}
+				} else {
+					$data['message'] = 'Directory not found error while creating new';
+				    $statusCode = 500;
+				}
+
+			} else {
+				$data['message'] = 'Not File provided for upload OR Vehicle Id is missing in url';
+				$statusCode = 500;
+			}
+
+			return view::responseJson($data, $statusCode);
 	}
+
+	
 
 
 }
