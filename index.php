@@ -149,7 +149,8 @@ $route->get('/api/vehicles/{id}', 'vehiclesCtrl@single');
 
 $route->post('/api/vehicles', 'vehiclesCtrl@save');
 
-$route->post('api/vehicles/uploadslides/{vehicle_id}', 'vehiclesCtrl@manageSlides');
+$route->post('/api/vehicles/uploadslides/{vehicle_id}', 'vehiclesCtrl@manageSlides');
+
 
 $route->post('/api/vehicles/d', 'vehiclesCtrl@saved');
 

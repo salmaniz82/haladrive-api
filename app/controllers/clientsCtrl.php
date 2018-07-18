@@ -16,6 +16,7 @@ class clientsCtrl extends appCtrl {
             view::responseJson($data, $statusCode);
             die();
         }
+        
 
 
         $this->DB = new Database();
@@ -26,7 +27,9 @@ class clientsCtrl extends appCtrl {
 	public function index()
 	{
 		
-        $userID = (int) $this->jwtUserId();
+         $userID = (int) $this->jwtUserId();
+
+
 
         if(JwtAuth::$user['role_id'] == 1)
         {
@@ -44,6 +47,8 @@ class clientsCtrl extends appCtrl {
             
             $statusCode = 200;
         }
+
+        
         
         
 		return view::responseJson($data, 200);
@@ -55,20 +60,16 @@ class clientsCtrl extends appCtrl {
     {
 
         $userID = (int) $this->jwtUserId();
-
-        $query = "SELECT c.civilno, c.photo from vendor_clients as vc INNER JOIN clients c on c.id = vc.client_id 
-            WHERE vc.vendor_id = $userID AND c.status = 1";
-
-
+        $query = "SELECT c.civilno, c.photo from vendor_clients as vc 
+        INNER JOIN clients c on c.id = vc.client_id 
+        WHERE vc.vendor_id = $userID AND c.status = 1";
 
         if($row = $this->DB->rawSql($query)->returnData())
         {
-
             $data = [];
             foreach ($row as $key => $value) {
                 $data[$value['civilno']] = $value['photo'];
             }
-
         }
 
         return  view::responseJson($data, 200);

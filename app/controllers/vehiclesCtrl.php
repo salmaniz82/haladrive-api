@@ -65,6 +65,8 @@ class vehiclesCtrl extends appCtrl {
 			$query .= " WHERE v.user_id = {$user_id}";
 		}
 
+		
+
 	
 		if($data['v'] = $this->DB->rawSql($query)->returnData())
 		{
@@ -107,7 +109,13 @@ class vehiclesCtrl extends appCtrl {
 
 		}
 
-
+		$data['pagination'] = array(
+			'total' => 300,
+			'pages' => 30,
+			'perPage' => 10,
+			'nextLink'=> 'http://somedomain.com/5/100',
+			'previouslink'=> 'http://somedomain.com/5/100'
+		);
 
 		view::responseJson($data, $statusCode);
 
@@ -164,7 +172,7 @@ class vehiclesCtrl extends appCtrl {
 		if($role_id !== 1)
 		{
 			// non-admin users match id and user id
-			$query .= " WHERE v.id = {$ID} AND v.user_id = {$user_id}";
+			$query .= " WHERE v.id = {$ID} AND v.user_id = {$user_id} LIMIT 1";
 		}
 		else {
 			// for admin match only id so he can view other vendor data
@@ -177,18 +185,34 @@ class vehiclesCtrl extends appCtrl {
 		{
 
 
-
-		$this->DB->table = 'v_options';
-
-
-		foreach ($data['v'] as $key => $value) {	
-
-			$id = $value['id'];
+			// inject options data into table
+			$this->DB->table = 'v_options';
+			$id = $data['v'][0]['id'];
 			$queryOpt = "select vo.id, opt.titleEN, opt.titleAR from v_options as vo 
 			INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$id}";
-			$data['v'][$key]['options'] = $this->DB->rawSql($queryOpt)->returnData();
-			
-		}
+			 
+
+			if($options = $this->DB->rawSql($queryOpt)->returnData())
+			{
+				$data['v'][0]['options'] = $options;
+			}
+			else {
+				$data['v'][0]['options'] = null;	
+			}
+
+			// inject slides into vehicle array
+
+
+			$this->DB->table = 'slides';
+
+			if ($slides = $this->DB->build('S')->Colums('slide_large')->Where("vehicle_id = '".$ID."'")->go()->returnData()) 
+			{
+				$data['v'][0]['slides']	 = $slides;
+			}
+			else {
+				$data['v'][0]['slides'] = null;	
+			}
+		
 
 		$statusCode = 200;
 
@@ -198,7 +222,6 @@ class vehiclesCtrl extends appCtrl {
 			else {
 				$data['message'] = 'No Records Yet';
 				$data['debug'] = $this->DB;
-
 				$data['status'] = false;
 				$statusCode = 500;
 			}
@@ -216,7 +239,7 @@ class vehiclesCtrl extends appCtrl {
 
 		}
 
-		$data['query'] = $this->DB->sqlSyntax;
+		
 
 		view::responseJson($data, $statusCode);
 
@@ -285,8 +308,8 @@ class vehiclesCtrl extends appCtrl {
 
 			$postData = $this->DB->sanitize($keys);
 
-			$postData['status'] = 0;
-			$postData['user_id'] = JwtAuth::$user['role_id'];
+			$postData['status'] = 1;
+			$postData['user_id'] = JwtAuth::$user['id'];
 
 
 			if($lastID = $this->DB->insert($postData) )
@@ -574,26 +597,24 @@ class vehiclesCtrl extends appCtrl {
 							
 
 							// record entry in database
-
-							$db = new Database();
-							$db->table = 'slides';
+							$this->DB->table = 'slides';
 							$keys = array(
 								'vehicle_id' => $last_id,
-								'slide_large' => mysqli_real_escape_string($db->connection, $filename),
+								'slide_large' => mysqli_real_escape_string($this->DB->connection, $filename),
 								'status'=> 1,
 								'label'=> 'default',
 								'slide_order'=> 1
 							);
 
 
-							if( $lastSlide = $db->insert($keys) )
+							if( $lastSlide = $this->DB->insert($keys) )
 							{
 								$data['message'] = 'record added and uploaded to server';
 			     				$statusCode = 200;	
 							}
 							else {
 								$data['message'] = 'Image uploaded with cannot add dababase entry please try again';
-								$data['debug'] = $db;
+								$data['debug'] = $this->DB->connection;
 			     				$statusCode = 500;
 							}
 			     			
@@ -605,7 +626,7 @@ class vehiclesCtrl extends appCtrl {
 					} else {
 
 						$data['message'] = 'File already exist';
-				        $statusCode = 500;
+				        $statusCode = 403;
 					}
 				} else {
 					$data['message'] = 'Directory not found error while creating new';

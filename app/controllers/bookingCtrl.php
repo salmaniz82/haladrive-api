@@ -219,6 +219,20 @@ class bookingCtrl extends appCtrl {
 						$statusCode = 201;
 						$data['message'] = 'Booking added Successfully';
 						$data['pdata'] = $keys;
+
+						// client assignment check
+
+					
+
+						if( $this->isClient($user_id, $client_id) == null)
+						{
+							$data['message'] .= ': Existing Client';
+						}	
+						else {
+							$data['message'] .= ': New Client';
+						}
+
+						
 					}
 
 					else {
@@ -576,6 +590,35 @@ class bookingCtrl extends appCtrl {
 			return false;
 		}
 		
+
+	}
+
+
+	private function isClient($vendor_id, $client_id)
+	{
+
+
+			$this->DB->table = 'vendor_clients';
+			$vClientID = (int) $client_id[0]['id'];
+			if(!$vClient = $this->DB->build('S')->Colums('id')->Where("vendor_id = ". $vendor_id )->Where( "client_id = ". $vClientID )->go()->returnData())
+			{
+
+					$keys2['vendor_id'] = $vendor_id;
+                    $keys2['client_id'] = $vClientID;
+                    $keys2['status'] = 1;
+                    if($r = Route::crossFire("api/vclients", 'POST', $keys2))
+                    {
+                    	return $r;
+                    }
+                    else {
+                    	return 'Failed to Assigned A Client';
+                    }
+				
+			}
+			else {
+				return null;
+			}
+			
 
 	}
 
