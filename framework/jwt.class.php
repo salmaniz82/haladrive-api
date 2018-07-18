@@ -145,7 +145,7 @@ class JwtAuth {
 
     private static function getKey()
     {
-        return 'Phantom';
+        return JWT_SECRET;
     }
 
 

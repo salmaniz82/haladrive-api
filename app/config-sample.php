@@ -9,6 +9,8 @@ function siteURL()
 
 define( 'SITE_URL', siteURL() );
 
+define( 'JWT_SECRET', 'SetSercretKeyForYourJWT' );
+
 
 
 if(SITE_URL == 'http://api.haladrive.local/')
