@@ -45,14 +45,14 @@ class invoiceCtrl extends appCtrl {
         INNER JOIN gsection gMaker ON v.maker = gMaker.id 
         INNER JOIN gsection gBody ON v.bodystyle = gBody.id 
         INNER JOIN brands ON v.model_id = brands.id 
-        INNER JOIN clients as c on c.id = b.client_id WHERE i.user_id = {$user_id} ORDER BY i.id DESC";
+        INNER JOIN clients as c on c.user_id = b.client_id WHERE i.user_id = {$user_id} ORDER BY i.id DESC";
 
         if($data['i'] = $this->DB->rawSql($query)->returnData())
         {
             $statusCode = 200;    
         }        
         else {
-            $statusCode = 401;
+            $statusCode = 204;
             $data['message'] = 'No Record found';
             $data['status'] = 'false';
         }

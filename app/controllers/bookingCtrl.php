@@ -89,7 +89,7 @@ class bookingCtrl extends appCtrl {
 		DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays'	
 
     	FROM bookings as b
-    	INNER JOIN clients c on b.client_id = c.id 
+    	INNER JOIN clients c on b.client_id = c.user_id 
     	INNER JOIN vehicles v on b.vehicle_id = v.id 
     	INNER JOIN gsection gMaker on v.maker = gMaker.id 
     	INNER JOIN brands on v.model_id = brands.id WHERE b.id = $id";
@@ -97,13 +97,13 @@ class bookingCtrl extends appCtrl {
     	if($data = $this->DB->rawSql($query)->returnData())
     	{
 
-    		$data['serverDateTime'] = $cDT;
+    		
 
 
     	}
 
     	else {
-    		$data = null;
+    		$data = $this->DB;
     	}
 
 
@@ -465,12 +465,6 @@ class bookingCtrl extends appCtrl {
                 {
                 	$vehicle_id = $bookingData[0]['vehicle_id'];
                 	
-                	/*
-                	$this->DB->table = 'vehicles';
-					$pushData = array('mileage' => $keys['endMileage']);
-					if($this->DB->update($pushData, $vehicle_id));
-					*/
-
 					$pushData = array('mileage' => $keys['endMileage']);
 
 					$res = Route::crossFire("api/vehicles/{$vehicle_id}", 'PUT', $pushData);
@@ -583,7 +577,7 @@ class bookingCtrl extends appCtrl {
 			}
 
 			else {
-				return false;
+				return $this->DB;
 			}
 
 		}
@@ -678,8 +672,6 @@ class bookingCtrl extends appCtrl {
 
 
     }
-
-    
 
 
 }
