@@ -1,4 +1,5 @@
 app/config.php
 haladrive-api.sql
 uploads/
+DB/
 .htaccess
