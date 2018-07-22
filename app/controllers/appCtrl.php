@@ -164,5 +164,11 @@ class appCtrl {
 
     }
 
+
+    public function Dt_24()
+    {
+    	return Date('Y-m-d H:i:s');
+    }
+
     
 }

@@ -100,29 +100,7 @@ class userCtrl {
 
 	public function doRegister()
 	{
-		$db = new Database();
-		$db->table = 'users';
-
-		$user['name'] = $_POST['name'];
-		$user['email'] = $_POST['email'];
-		$user['role_id'] = 3;
-		$password = $_POST['password'];
-		$password = sha1($password);
-		$user['password'] = $password;
-
-		if( $db->insert($user) ) 
-		{
-
-			$data['title'] = 'Congratulations';
-			$data['message'] = 'You are now registered you can use your credentials to login';
-			View::render('page', $data);
-		} else 
-			{
-
-			$data['message'] = 'Some thing went wrong during registration';
-			View::render('page', $data);
-
-			}
+		
 	}
 
 	public function checkReturnAuthenticatedUser()

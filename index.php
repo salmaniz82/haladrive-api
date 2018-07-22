@@ -17,6 +17,12 @@ $route->get('/jwt/check', 'jwtauthCtrl@check');
 // for testing only
 $route->post('/jwt/login', 'jwtauthCtrl@login');
 
+$route->post('/jwt/register', 'jwtauthCtrl@register');
+
+
+// when vendor is creating a consumer registration + assignment
+$route->post('/jwt/consumer-register', 'jwtauthCtrl@consumerRegister');
+
 $route->get('/jwt/validate', 'jwtauthCtrl@validateToken');
 
 $route->get('/jwt/admin', 'jwtauthCtrl@adminOnlyProtected');
@@ -163,6 +169,10 @@ $route->delete('/api/vehicles/{id}', 'vehiclesCtrl@delete');
 
 $route->get('/api/booking', 'bookingCtrl@index');
 
+$route->get('/api/client-booking', 'bookingCtrl@clientBooking');
+
+
+
 $route->get('/api/booking/{id}', 'bookingCtrl@single');
 
 $route->put('/api/booking/{id}', 'bookingCtrl@update');
@@ -217,6 +227,8 @@ $route->post('/api/maintain', 'maintenanceCtrl@save');
 $route->put('/api/maintain/{id}', 'maintenanceCtrl@update');
 
 $route->delete('/api/maintain/{id}', 'maintenanceCtrl@delete');
+
+
 
 $route->otherwise( function() {
 

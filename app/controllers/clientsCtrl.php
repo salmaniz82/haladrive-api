@@ -34,11 +34,14 @@ class clientsCtrl extends appCtrl {
         if(JwtAuth::$user['role_id'] == 1)
         {
 
-            $query = "SELECT c.id, vc.vendor_id, vc.client_id, c.nameEN, c.nameAR, c.mobile, c.email, c.civilno, c.mobile, c.mobile2, c.status from vendor_clients as vc INNER JOIN clients c on c.id = vc.client_id";
+            $query = "SELECT c.id, vc.vendor_id, vc.client_id, c.nameEN, c.nameAR, c.mobile, c.email, c.civilno, c.mobile, c.mobile2, c.status from vendor_clients as vc INNER JOIN clients c on c.user_id = vc.client_id";
         }
         else {
 
-            $query = "SELECT c.id, vc.vendor_id, vc.client_id, c.nameEN, c.nameAR, c.mobile, c.email, c.civilno, c.mobile, c.mobile2, c.status from vendor_clients as vc INNER JOIN clients c on c.id = vc.client_id WHERE vc.vendor_id = $userID";
+            $query = "SELECT c.id, vc.vendor_id, vc.client_id, 
+            c.nameEN, c.nameAR, c.mobile, c.email, c.civilno, c.mobile, c.mobile2, c.status 
+            from vendor_clients as vc 
+            INNER JOIN clients c on c.user_id = vc.client_id WHERE vc.vendor_id = $userID";
 
         }
 
@@ -110,10 +113,7 @@ class clientsCtrl extends appCtrl {
 
 	public function save()
 	{
-        $data = [];
-
-          // server side validation is yet pending for this processing
-
+         $data = [];
          $gump = new GUMP();
 
         $_POST = $gump->sanitize($_POST); // You don't have to sanitize, but it's safest to do so.
@@ -127,9 +127,9 @@ class clientsCtrl extends appCtrl {
             'civilno' => 'required|numeric|exact_len,12',
         ));
 
-        $pdata = $gump->run($_POST);
+        
 
-        if($pdata === false)
+        if($gump->run($_POST) === false)
         {
             // validation failed
 
@@ -142,37 +142,41 @@ class clientsCtrl extends appCtrl {
         else {
             // validation passes
 
-            if($this->jwtUserId())
-            {
-                $user_id = $this->jwtUserId();
-            }
-            else {
-             $user_id = 0;   
-            }
+            /*
+            *   add registration data first get the last_id then
+            *   add the last_id as user_id in the clients table
+            *   
+            */ 
 
-            $roleID = $this->jwtRoleId();
-            $keys = array('nameEN', 'nameAR', 'mobile', 'email', 'mobile2', 'civilno');
-            $keys = $this->DB->sanitize($keys);
-            $keys['user_id'] = $user_id;
+            // adding registration data
+
+                $keys = array('nameEN', 'nameAR', 'mobile', 'email', 'mobile2', 'civilno');
+                $keys = $this->DB->sanitize($keys);
+
+            
+                // registering user as a consumer
+                $consumer['name'] = $keys['nameEN'];
+                $consumer['email'] = $keys['email'];
+                $cfx = Route::crossFire("jwt/consumer-register", 'POST', $consumer);
+                $consumer_Id =  $cfx['consumer_Id'];
+
+                // assigning a consumer to a vendor
+                $keys2['vendor_id'] = JwtAuth::$user['id'];
+                $keys2['client_id'] = $consumer_Id;
+                $keys2['status'] = 1;
+                $data['client_assignment'] = Route::crossFire("api/vclients", 'POST', $keys2);
+                     
+            
+
+            // adding in clients table    
+            
+            $keys['user_id'] = $consumer_Id;
             $keys['status'] = 1;
 
             if($lastID = $this->DB->insert($keys))
             {
-                if($roleID == 3)
-                {
-                    
-                    $keys2['vendor_id'] = $user_id;
-                    $keys2['client_id'] = $lastID;
-                    $keys2['status'] = 0;
-                    $resCurl = Route::crossFire("api/vclients", 'POST', $keys2);
-                    $data['resCulr'] = $resCurl;
-
-                }
-
                 $statusCode = 200;    
-                $data['userid'] = $user_id;
                 $data['lastID'] = $lastID;
-
                 $data['message'] = 'Record Added with Success';
                 $data['status'] = true;
             }
@@ -237,7 +241,12 @@ class clientsCtrl extends appCtrl {
 	public function delete()
 	{
 	
-        return $this->removeOwnerOrAdmin();
+           $data['message'] = 'Not Available at this point';
+           $statusCode = 503;
+
+           return view::responseJson($data, $statusCode);
+
+      //  return $this->removeOwnerOrAdmin();
 
 	}
 

@@ -22,17 +22,19 @@ class bookingCtrl extends appCtrl {
     		$user_id = (int) JwtAuth::$user['id'];		
     	}
 
-		$cDT = $this->getDbCurrentDateTime();
+		$cDT = $this->Dt_24();
 
 
 
-    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
-    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
-    	c.nameEN as 'clentNameEN', c.nameAR as 'clentNameAR',
+    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, 
+    	DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
+    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', 
+    	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
+    	c.name as 'clentNameEN', 
     	v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
     	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
     	gMaker.titleEN as 'makerEN',
-		gMaker.titleAR as 'makerAR' , 
+		gMaker.titleAR as 'makerAR', 
 		
 
 		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/1440, 2) AS 'forDays',  
@@ -42,7 +44,7 @@ class bookingCtrl extends appCtrl {
 		TRUNCATE(TIMESTAMPDIFF(MINUTE,  '". $cDT ."', startdatetime)/60, 2) AS 'initHours'  
 
     	FROM bookings as b
-    	INNER JOIN clients c on b.client_id = c.id 
+    	INNER JOIN users c on b.client_id = c.id 
     	INNER JOIN vehicles v on b.vehicle_id = v.id 
     	INNER JOIN gsection gMaker on v.maker = gMaker.id 
     	INNER JOIN brands on v.model_id = brands.id WHERE b.user_id = {$user_id} ORDER BY b.id DESC";
@@ -52,6 +54,8 @@ class bookingCtrl extends appCtrl {
 
     		$data['serverDateTime'] = $cDT;
     	}
+
+    	$data['debug'] = $this->DB;
 
     	$data['user_id'] = $user_id;
 
@@ -67,11 +71,8 @@ class bookingCtrl extends appCtrl {
     	
     	$data = [];
 
-    	// $currentDatetime = date("Y-m-d H:i:s");
 
-		$cDtDB = $this->DB->rawSql("SELECT NOW() as 'cd' ")->returnData();
-
-		$cDT = $cDtDB[0]['cd'];
+		$cDT = $cDT = $this->Dt_24();
 
     	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
     	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
@@ -115,7 +116,8 @@ class bookingCtrl extends appCtrl {
     {
     	
     	$data = [];
-    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, b.sDate, b.eDate, b.sTime, b.eTime, b.startdatetime, b.enddatetime, b.expired, 
+    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, b.sDate, b.eDate, 
+    	b.sTime, b.eTime, b.startdatetime, b.enddatetime, b.expired, 
     	c.nameEN as 'clentNameEN', c.nameAR as 'clentNameAR'
     	FROM bookings as b
     	INNER JOIN clients c on b.client_id = c.id";
@@ -178,7 +180,7 @@ class bookingCtrl extends appCtrl {
 		 		$civilno =  $_POST['civilno'];
 		 		$this->DB->table = 'clients';
 
-		 		if( $client_id = $this->DB->build('S')->Colums('id')->Where("civilno = '".$civilno."'")->Where("status = 1")->go()->returnData() ) 
+		 		if( $client_id = $this->DB->build('S')->Colums('user_id')->Where("civilno = '".$civilno."'")->Where("status = 1")->go()->returnData() ) 
 				{
 				$this->DB->table = 'bookings';	
 
@@ -190,7 +192,7 @@ class bookingCtrl extends appCtrl {
 				$keys = $this->DB->sanitize($keys);
 
 
-				$keys['client_id'] = $client_id[0]['id'];
+				$keys['client_id'] = $client_id[0]['user_id'];
 				$keys['user_id'] = $user_id;
 				$keys['expired'] = 0;
 
@@ -599,7 +601,7 @@ class bookingCtrl extends appCtrl {
 
 
 			$this->DB->table = 'vendor_clients';
-			$vClientID = (int) $client_id[0]['id'];
+			$vClientID = (int) $client_id[0]['user_id'];
 			if(!$vClient = $this->DB->build('S')->Colums('id')->Where("vendor_id = ". $vendor_id )->Where( "client_id = ". $vClientID )->go()->returnData())
 			{
 
@@ -621,5 +623,63 @@ class bookingCtrl extends appCtrl {
 			
 
 	}
+
+
+
+
+
+	public function clientBooking()
+    {
+
+    	
+    	$data = [];
+
+    	if(JwtAuth::validateToken())
+    	{
+    		$user_id = (int) JwtAuth::$user['id'];
+    		
+    	}
+
+		$cDT = $this->Dt_24();
+
+
+
+    	$query = "SELECT b.id, b.user_id, b.vehicle_id, 
+    	DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
+    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', 
+    	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
+    	
+    	v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
+    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
+    	gMaker.titleEN as 'makerEN',
+		gMaker.titleAR as 'makerAR' , 
+		
+
+		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/1440, 2) AS 'forDays',  
+		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/60, 2) AS 'forHours',  
+
+		DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays', 	
+		TRUNCATE(TIMESTAMPDIFF(MINUTE,  '". $cDT ."', startdatetime)/60, 2) AS 'initHours'  
+
+    	FROM bookings as b
+    	
+    	INNER JOIN vehicles v on b.vehicle_id = v.id 
+    	INNER JOIN gsection gMaker on v.maker = gMaker.id 
+    	INNER JOIN brands on v.model_id = brands.id WHERE b.client_id = {$user_id} ORDER BY b.id DESC";
+
+    	if($data['b'] = $this->DB->rawSql($query)->returnData())
+    	{
+
+    		
+    	}
+
+    	return view::responseJson($data, 200);
+
+
+
+    }
+
+    
+
 
 }
