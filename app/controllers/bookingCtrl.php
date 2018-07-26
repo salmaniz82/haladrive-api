@@ -10,58 +10,99 @@ class bookingCtrl extends appCtrl {
         $this->DB->table = 'bookings';
     }
 
-
     public function index()
     {
-
     	
+    	$allowedRoles = [1,3,4];
     	$data = [];
 
-    	if(JwtAuth::validateToken())
-    	{
-    		$user_id = (int) JwtAuth::$user['id'];		
-    	}
-
-		$cDT = $this->Dt_24();
-
-
-
-    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, 
-    	DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
-    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', 
-    	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
-    	c.name as 'clentNameEN', 
-    	v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
-    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
-    	gMaker.titleEN as 'makerEN',
-		gMaker.titleAR as 'makerAR', 
-		
-
-		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/1440, 2) AS 'forDays',  
-		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/60, 2) AS 'forHours',  
-
-		DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays', 	
-		TRUNCATE(TIMESTAMPDIFF(MINUTE,  '". $cDT ."', startdatetime)/60, 2) AS 'initHours'  
-
-    	FROM bookings as b
-    	INNER JOIN users c on b.client_id = c.id 
-    	INNER JOIN vehicles v on b.vehicle_id = v.id 
-    	INNER JOIN gsection gMaker on v.maker = gMaker.id 
-    	INNER JOIN brands on v.model_id = brands.id WHERE b.user_id = {$user_id} ORDER BY b.id DESC";
-
-    	if($data['b'] = $this->DB->rawSql($query)->returnData())
+    	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
 
-    		$data['serverDateTime'] = $cDT;
+    		
+    		
+    		$user_id = (int) JwtAuth::$user['id'];
+    		$role_id = (int) JwtAuth::$user['role_id'];
+    	
+    		$cDT = $this->Dt_24();
+
+	    	$query = "SELECT b.id, b.vehicle_id, ";
+
+
+	    	if($role_id == 3 || $role_id == 1) 
+	    	{
+	    		$query .= "b.client_id, b.user_id,";	
+	    	}
+
+	    	if($role_id == 4)
+	    	{
+	    		$query .= "b.user_id as vendor_id,";
+	    	}
+
+	    	$query .= " DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
+	    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', 
+	    	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, ";
+
+	    	if($role_id == 3 || $role_id == 1)
+	    	{
+	    		$query .= " c.name as 'clentNameEN', ";	
+	    	}
+	    	
+
+	    	$query .= " v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
+	    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
+	    	gMaker.titleEN as 'makerEN',
+			gMaker.titleAR as 'makerAR', 
+			
+
+			TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/1440, 2) AS 'forDays',  
+			TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/60, 2) AS 'forHours',  
+
+			DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays', 	
+			TRUNCATE(TIMESTAMPDIFF(MINUTE,  '". $cDT ."', startdatetime)/60, 2) AS 'initHours'  
+
+	    	FROM bookings as b ";
+
+	    	$query .= " INNER JOIN users c on b.client_id = c.id ";
+	    	$query .= " INNER JOIN vehicles v on b.vehicle_id = v.id 
+	    				INNER JOIN gsection gMaker on v.maker = gMaker.id 
+	    				INNER JOIN brands on v.model_id = brands.id ";
+
+		    if($role_id == 3)
+		    {
+		    	$query .= "	WHERE b.user_id = {$user_id} ";	
+		    }
+
+		    if($role_id == 4)
+		    {
+		    	$query .= "	WHERE b.client_id = {$user_id} ";	
+		    }
+
+
+	    	$query .= "	ORDER BY b.id DESC ";
+
+
+	    	if($data['b'] = $this->DB->rawSql($query)->returnData())
+	    	{
+	    		$data['message'] = "Success";
+	    		$statusCode = 200;
+	    			
+	    	}
+	    	else {
+	    		$data['message'] = "Record not found";
+	    		$statusCode = 204;
+	    	}
+
     	}
 
-    	$data['debug'] = $this->DB;
+    	else {
+    		$data['message'] = "Access Denied";
+    		$statusCode = 401;
+    	}
 
-    	$data['user_id'] = $user_id;
-
-    	view::responseJson($data, 200);
-
+    	view::responseJson($data, $statusCode);
     }
+
 
 
     public function single()
@@ -644,7 +685,7 @@ class bookingCtrl extends appCtrl {
     	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
     	
     	v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
-    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
+    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR',
     	gMaker.titleEN as 'makerEN',
 		gMaker.titleAR as 'makerAR' , 
 		
@@ -672,6 +713,9 @@ class bookingCtrl extends appCtrl {
 
 
     }
+
+
+    
 
 
 }
