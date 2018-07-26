@@ -61,7 +61,7 @@ class Database
 
         $data = null;
 
-        while($rows = mysqli_fetch_assoc($this->resource))
+        while( $rows = $this->resource->fetch_assoc() )
         {
             $data[] = $rows;
         }
