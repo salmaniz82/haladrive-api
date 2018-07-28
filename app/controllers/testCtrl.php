@@ -96,47 +96,6 @@ class testCtrl extends appCtrl
 	public function vehicleQuery()
 	{
 
-		/*
-			http://api.haladrive.local/api/vehicles/q/?name=me&price=300&mileage=300&options[]=apple&options[]=banana&brand=toyota&model=aqua%20ES
-			print_r($_GET);		
-		*/
-
-		// get all the vehicles
-
-			if(isset($_GET['brand']))
-			{
-				$qBrand = $_GET['brand'];
-			}
-
-			if(isset($_GET['model']))
-			{
-				$qModel = $_GET['model'];
-			}
-
-			if(isset($_GET['body']))
-			{
-				$qBody = $_GET['body'];
-			}
-
-			if(isset($_GET['minmileage']))
-			{
-				$minMileage = $_GET['minmileage'];
-			}
-
-			if(isset($_GET['maxmileage']))
-			{
-				$maxMileage = $_GET['maxmileage'];
-			}
-
-			if(isset($_GET['minprice']))
-			{
-				$minPrice = $_GET['minprice'];
-			}
-
-			if(isset($_GET['maxprice']))
-			{
-				$maxPrice = $_GET['maxprice'];
-			}
 
 		if(JwtAuth::validateToken())
 		{
@@ -181,91 +140,119 @@ class testCtrl extends appCtrl
 		INNER JOIN brands on v.model_id = brands.id ";
 	
 
-		if(isset($role_id) && $role_id !== 1)
+
+		if(isset($_GET['brand']))
 		{
 		
-			$string = " v.user_id = {$user_id} ";
+			$qBrand = $_GET['brand'];
+			$string = " gMaker.titleEN = '{$qBrand}'";	
 			$query .= $this->appendQuery($query, $string);
 		}
 
-		if(isset($qBrand))
+		if(isset($_GET['body']))
 		{
 
-			$string = " v.maker = {$qBrand}";
-			$query .= $this->appendQuery($query, $string);
-		}
-
-		if(isset($qBody))
-		{
-
-			$string = " v.bodyStyle = {$qBody}";
+			$qBody = $_GET['body'];
+			$string = " gBody.titleEN = '{$qBody}'";
 			$query .= $this->appendQuery($query, $string);
 		}
 
 
-		if(isset($qModel))
+		if(isset($_GET['model']))
 		{
 
-			$string = " v.model_id = {$qModel}";
+			$qModel = $_GET['model'];
+			$string = " brands.nameEN = '{$qModel}' ";
 			$query .= $this->appendQuery($query, $string);
 		}
 
-		if(isset($minMileage))
+
+		if(isset($_GET['minmileage']))
 		{
 
+			$minMileage = $_GET['minmileage'];
 			$string = " v.mileage >= {$minMileage}";
 			$query .= $this->appendQuery($query, $string);
 		}
 
-		if(isset($maxMileage))
+		if(isset($_GET['maxmileage']))
 		{
-
+			$maxMileage = $_GET['maxmileage'];
 			$string = " v.mileage <= {$maxMileage}";
 			$query .= $this->appendQuery($query, $string);
 		}
 
 
-		if(isset($minPrice))
+		if( isset($_GET['minprice']) )
 		{
-
+			$minPrice = $_GET['minprice'];
 			$string = " v.price >= {$minPrice}";
 			$query .= $this->appendQuery($query, $string);
 		}
 
-		if(isset($maxPrice))
+		if(isset($_GET['maxprice']))
 		{
 
+			$maxPrice = $_GET['maxprice'];
 			$string = " v.price <= {$maxPrice}";
 			$query .= $this->appendQuery($query, $string);
 		}
 
-		
-		//	echo $query;
+		if( isset($_GET['fuel']) )
+		{
+			$fuel = $_GET['fuel'];
+			$string = " gFuel.titleEN = '{$fuel}' ";
+			$query .= $this->appendQuery($query, $string);	
+		}
+
+		if( isset($_GET['engine']) )
+		{
+			$engine = $_GET['engine'];
+			$string = " gEngine.titleEN = '{$engine}' ";
+			$query .= $this->appendQuery($query, $string);	
+		}
+
+		if( isset($_GET['transmission']) )
+		{
+			$transmission = $_GET['transmission'];
+			$string = " gTrans.titleEN = '{$transmission}' ";
+			$query .= $this->appendQuery($query, $string);	
+		}
+
+		if( isset($_GET['drive']) )
+		{
+			$drive = $_GET['drive'];
+			$string = " gDtrain.titleEN = '{$drive}' ";
+			$query .= $this->appendQuery($query, $string);	
+		}
+
+
+
 
 		if($data['v'] = $this->DB->rawSql($query)->returnData())
 		{
 
 
-		$this->DB->table = 'v_options';
-
-		foreach ($data['v'] as $key => $value) {	
-
-			$id = $value['id'];
-			$queryOpt = "select vo.id, opt.titleEN, opt.titleAR from v_options as vo 
-			INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$id}";
-			$data['v'][$key]['options'] = $this->DB->rawSql($queryOpt)->returnData();
+			if(isset($_GET['options']) && isset($_GET['options']) == 'true')
+			{
+				$this->DB->table = 'v_options';
+				foreach ($data['v'] as $key => $value) 
+				{	
+					$id = $value['id'];
+					$queryOpt = "select vo.id, opt.titleEN, opt.titleAR from v_options as vo 
+					INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$id}";
+					$data['v'][$key]['options'] = $this->DB->rawSql($queryOpt)->returnData();	
+				}
 			
-		}
+			}
 
-		$statusCode = 200;
-
+			$statusCode = 200;
+			$data['records'] = $this->DB->noRows;
 
 		}// @endif $data primary
 
 			else {
-				$data['message'] = 'No Records Yet';
-				$data['debug'] = $this->DB;
-
+				$data['message'] = 'No Match were found';
 				$data['status'] = false;
 				$statusCode = 500;
 			}
@@ -278,16 +265,13 @@ class testCtrl extends appCtrl
 
 	public function appendQuery($query, $string)
 	{
-
 		if (strpos($query, 'WHERE') !== false) {
     		$queryString = ' AND '. $string;	
 		}
-		else {
-			
+		else {	
 			$queryString = ' WHERE '. $string;
 		}
-
-		return $queryString;
+		return urldecode($queryString);
 
 	}
 
