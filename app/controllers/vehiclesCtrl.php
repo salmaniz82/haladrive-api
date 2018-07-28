@@ -556,7 +556,7 @@ class vehiclesCtrl extends appCtrl {
 		$enabled = '1';
 
 
-		if($data = $this->DB->build('S')->Colums('id, mileage')->Where("id = '".$id."'")->Where("is_available = '".$enabled."'")->go()->returnData())
+		if($data = $this->DB->build('S')->Colums('id, mileage, user_id')->Where("id = '".$id."'")->Where("is_available = '".$enabled."'")->go()->returnData())
 		{
 			
 			if($data[0]['id'] != null)

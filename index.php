@@ -169,10 +169,6 @@ $route->delete('/api/vehicles/{id}', 'vehiclesCtrl@delete');
 
 $route->get('/api/booking', 'bookingCtrl@index');
 
-$route->get('/api/client-booking', 'bookingCtrl@clientBooking');
-
-
-
 $route->get('/api/booking/{id}', 'bookingCtrl@single');
 
 $route->put('/api/booking/{id}', 'bookingCtrl@update');

@@ -188,7 +188,27 @@ class bookingCtrl extends appCtrl {
     public function save()
     {
 
-    	if(JwtAuth::validateToken())
+    	if( JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 3) 
+    	{
+			return $this->handleVendorBooking();
+    	}
+    	else if(JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 4)
+    	{
+    		return $this->handleConsumerBooking();
+    	}
+    	else {
+
+    		return $this->uaReponse();
+
+    	}
+
+    }
+
+
+    public function handleVendorBooking()
+    {
+
+    	if(JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 3)
     	{
 
 		 	$gump = new GUMP();
@@ -199,7 +219,7 @@ class bookingCtrl extends appCtrl {
 			'eDate'    =>  'required|date',
 			'sTime'    =>  'required',
 			'eTime'    =>  'required',		
-			'vehicle_id' 	=> 'required|integer'
+			'vehicle_id' => 'required|integer'
 
 		));
 
@@ -254,7 +274,6 @@ class bookingCtrl extends appCtrl {
 
 				if(!$is_reserved)
 				{
-
 					
 					if($lastID = $this->DB->insert($keys))
 					{
@@ -265,8 +284,6 @@ class bookingCtrl extends appCtrl {
 
 						// client assignment check
 
-					
-
 						if( $this->isClient($user_id, $client_id) == null)
 						{
 							$data['message'] .= ': Existing Client';
@@ -274,17 +291,14 @@ class bookingCtrl extends appCtrl {
 						else {
 							$data['message'] .= ': New Client';
 						}
-
 						
 					}
 
 					else {
-
 						$data['message'] = 'Failed to add booking please try with another date/time';
 						$data['pdata'] = $keys;
 						$data['debug'] = $this->DB;
 						$statusCode = 406;
-
 					}
 
 				}
@@ -313,14 +327,105 @@ class bookingCtrl extends appCtrl {
 
 			}
 
-
-
-		} // validation passes
+			} // validation passes
 		
+    	} 
 
-    	} // valid token
+    	
 		
 		return view::responseJson($data, $statusCode);
+
+    }
+
+    public function handleConsumerBooking()
+    {
+    	
+    	$gump = new GUMP();
+		$_POST = $gump->sanitize($_POST);
+
+		$gump->validation_rules(array(
+		'sDate'    =>  'required|date',
+		'eDate'    =>  'required|date',
+		'sTime'    =>  'required',
+		'eTime'    =>  'required',		
+		'vehicle_id' 	=> 'required|integer')
+		);
+
+		if($gump->run($_POST) === false)
+		{
+			$data['message'] = 'Required data is missing';
+			$data['post'] = $_POST;
+		} 
+
+		else{
+
+			$vehicle_id = $_POST['vehicle_id'];
+
+			if($is_available = view::fetchRoute('api/vehicles/available/'.$vehicle_id))
+			{
+					$vendor_id = (int) $is_available[0]['user_id'];
+					$this->DB->table = 'bookings';
+					// set the array keys received via form
+					
+					;
+					$keys = array('vehicle_id', 'sDate', 'eDate', 'sTime', 'eTime');
+					$keys = $this->DB->sanitize($keys);
+
+					$keys['client_id'] = (int) JwtAuth::$user['id'];
+					$keys['user_id'] = $vendor_id; // vendor id substitution
+					$keys['expired'] = 0;
+
+					// format start and end time
+
+					$keys['sTime'] = $this->convertToMysqlTime($keys['sTime']);	
+					$keys['eTime'] = $this->convertToMysqlTime($keys['eTime']);
+
+					// combine start date and time
+					$keys['startdatetime'] = $this->mergeDateTime($keys['sDate'], $keys['sTime']);
+					$keys['enddatetime'] = $this->mergeDateTime($keys['eDate'], $keys['eTime']);
+					$keys['status'] = 'pending';
+
+
+				if(! $this->bookingReserved($vehicle_id, $keys['startdatetime'], $keys['enddatetime']) )
+				{
+					
+					if($lastID = $this->DB->insert($keys))
+					{
+
+						$statusCode = 200;
+						$data['message'] = 'Booking added Successfully';
+						
+						if( $this->isClient($vendor_id, $keys['client_id']) == null)
+						{
+							$data['message'] .= ': Existing Client';
+						}	
+						else {
+							$data['message'] .= ': New Client';
+						}
+						
+					}
+
+					else {
+						$data['message'] = 'Failed to add booking please try with another date/time';
+						$statusCode = 406;
+					}
+
+				}
+
+				else {
+					$data['message'] = 'Vehicle is reserved with provided date time combination';
+					$statusCode = 406;
+				}
+
+			}
+			else {
+					$data['message'] = 'This Vehicle is not available for booking at the moment';
+					$statusCode = 406;
+				}
+
+		}
+    	
+    	return view::responseJson($data, $statusCode);
 
     }
 
@@ -636,7 +741,15 @@ class bookingCtrl extends appCtrl {
 
 
 			$this->DB->table = 'vendor_clients';
-			$vClientID = (int) $client_id[0]['user_id'];
+			if(JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 4)
+			{
+				$vClientID = (int) JwtAuth::$user['id'];
+			}
+			else {
+				$vClientID = (int) $client_id[0]['user_id'];	
+			}
+
+			
 			if(!$vClient = $this->DB->build('S')->Colums('id')->Where("vendor_id = ". $vendor_id )->Where( "client_id = ". $vClientID )->go()->returnData())
 			{
 
@@ -658,64 +771,6 @@ class bookingCtrl extends appCtrl {
 			
 
 	}
-
-
-
-
-
-	public function clientBooking()
-    {
-
-    	
-    	$data = [];
-
-    	if(JwtAuth::validateToken())
-    	{
-    		$user_id = (int) JwtAuth::$user['id'];
-    		
-    	}
-
-		$cDT = $this->Dt_24();
-
-
-
-    	$query = "SELECT b.id, b.user_id, b.vehicle_id, 
-    	DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
-    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', 
-    	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
-    	
-    	v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
-    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR',
-    	gMaker.titleEN as 'makerEN',
-		gMaker.titleAR as 'makerAR' , 
-		
-
-		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/1440, 2) AS 'forDays',  
-		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/60, 2) AS 'forHours',  
-
-		DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays', 	
-		TRUNCATE(TIMESTAMPDIFF(MINUTE,  '". $cDT ."', startdatetime)/60, 2) AS 'initHours'  
-
-    	FROM bookings as b
-    	
-    	INNER JOIN vehicles v on b.vehicle_id = v.id 
-    	INNER JOIN gsection gMaker on v.maker = gMaker.id 
-    	INNER JOIN brands on v.model_id = brands.id WHERE b.client_id = {$user_id} ORDER BY b.id DESC";
-
-    	if($data['b'] = $this->DB->rawSql($query)->returnData())
-    	{
-
-    		
-    	}
-
-    	return view::responseJson($data, 200);
-
-
-
-    }
-
-
-    
 
 
 }

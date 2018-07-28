@@ -3,6 +3,17 @@ class appCtrl {
 	
 	
 
+	public function uaReponse() 
+	{
+
+		$data['status'] = false;
+    	$data['message'] = "Access Denied";
+	    $statusCode = 401;
+    	return view::responseJson($data, $statusCode);
+	}
+
+
+
 	public function getID()
 	{
 		
