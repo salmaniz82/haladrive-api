@@ -35,8 +35,8 @@ class vInsuranceCtrl extends appCtrl {
 
                 //DATE_FORMAT(b.startdatetime, '%d-%m-%Y);
 
-        $query = "SELECT 
-        vi.id, vi.ins_id, vi.vehicle_id, vi.insuredName, vi.nationality, vi.policyno, vi.licensepurpose, DATE_FORMAT(vi.registration, '%d-%m-%Y') as 'registration', DATE_FORMAT(vi.expiration, '%d-%m-%Y') as 'expiration', 
+        $query = "SELECT vi.id, vi.ins_id, vi.vehicle_id, vi.insuredName, vi.nationality, vi.policyno, vi.licensepurpose, 
+        DATE_FORMAT(vi.registration, '%d-%m-%Y') as 'registration', DATE_FORMAT(vi.expiration, '%d-%m-%Y') as 'expiration', 
         TIMESTAMPDIFF(DAY, DATE(NOW()), vi.expiration) AS 'DaysToEx', IF((SELECT DaysToEx) > 0, 'Active', 'Expired') AS 'status', 
         i.nameEN as 'insuredVia'
         from vinsurance as vi 
@@ -47,9 +47,6 @@ class vInsuranceCtrl extends appCtrl {
         {
             $data['message'] = "Success";
             $data['status'] = true;
-            $data['cd'] = $this->getDbCurrentDate();
-            $data['cdt'] = $this->getDbCurrentDatetime();
-            $data['phpdt'] = date("Y-m-d H:i:s");
             $statusCode = 200;        
         }
         else {
@@ -66,8 +63,6 @@ class vInsuranceCtrl extends appCtrl {
                 $statusCode = 500;
             }
 
-
-               
         }
         $data['v'] = Route::crossFire("api/vehicles/{$vehicle_id}")['v'][0];       
         return view::responseJson($data, $statusCode);

@@ -77,8 +77,8 @@ class vehiclesCtrl extends appCtrl {
 		foreach ($data['v'] as $key => $value) {	
 
 			$id = $value['id'];
-			$queryOpt = "select vo.id, opt.titleEN, opt.titleAR from v_options as vo 
-			INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$id}";
+			$queryOpt = "select vo.id, vo.options_id, opt.titleEN, opt.titleAR, opt.options_id from v_options as vo 
+			INNER JOIN gsection opt on  = opt.id where vo.vehicle_id = {$id}";
 			$data['v'][$key]['options'] = $this->DB->rawSql($queryOpt)->returnData();
 			
 		}
@@ -188,7 +188,7 @@ class vehiclesCtrl extends appCtrl {
 			// inject options data into table
 			$this->DB->table = 'v_options';
 			$id = $data['v'][0]['id'];
-			$queryOpt = "select vo.id, opt.titleEN, opt.titleAR from v_options as vo 
+			$queryOpt = "select vo.id, vo.options_id, opt.titleEN, opt.titleAR from v_options as vo 
 			INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$id}";
 			 
 
