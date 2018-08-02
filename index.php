@@ -128,7 +128,11 @@ $route->delete('/api/gsection/{id}', 'gsectionCtrl@delete');
 
 $route->get('/api/gval', 'helperCtrl@index');
 
+$route->get('/api/filters', 'helperCtrl@filters');
+
 $route->get('/api/globaljson', 'helperCtrl@loadGlobalJson');
+
+
 
 
 // brand models
