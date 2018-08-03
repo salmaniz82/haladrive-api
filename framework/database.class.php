@@ -46,7 +46,13 @@ class Database
 
         if ($result = $this->connection->query($this->sqlSyntax))
         {
-            $this->noRows = $result->num_rows;
+
+            if(isset($result->num_rows)) 
+            {
+                $this->noRows = $result->num_rows;    
+            }
+
+            
             return $this->resource = $result;
         }
         else
