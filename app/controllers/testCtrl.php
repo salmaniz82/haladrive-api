@@ -305,7 +305,7 @@ class testCtrl extends appCtrl
 
 		$query = "SELECT v.id as 'id', v.photo as 'photo', v.nameEN as 'carnameEN', v.nameAR as 'carnameAR', v.year as 'year', v.series as 'series', v.vin as 'vin',
 		v.mileage as 'mileage', v.price as 'price', v.owner as 'owner', v.nokeys as 'nokeys', v.acdamage as 'accident_damage', v.status as 'status', 
-		v.is_available as 'is_available', 
+		v.is_available as 'is_available', count(vo.options_id) as 'noOFoptions',  
 
 		gBody.titleEN as 'bodystyleEN',
 		gBody.titleAR as 'bodystyleAR',
@@ -337,7 +337,9 @@ class testCtrl extends appCtrl
 		INNER JOIN gsection gDtrain on v.dtrain = gDtrain.id 
 		INNER JOIN gsection gEngine on v.engine = gEngine.id 
 		INNER JOIN gsection gFuel on v.fuel = gFuel.id 
-		INNER JOIN brands on v.model_id = brands.id ";
+		INNER JOIN brands on v.model_id = brands.id 
+		INNER JOIN v_options vo on v.id = vo.vehicle_id 
+		LEFT JOIN gsection gOptions on vo.options_id = gOptions.id ";
 	
 
 
@@ -393,6 +395,14 @@ class testCtrl extends appCtrl
 			$query .= $this->appendQuery($query, $string);	
 		}
 
+		if( isset($_GET['options']) )
+		{
+			$options = $_GET['options'];
+			$matchType = $this->checknPrepare($options);
+			$string = " gOptions.titleEN {$matchType} ";
+			$query .= $this->appendQuery($query, $string);	
+		}
+
 
 		if(isset($_GET['model']))
 		{
@@ -436,21 +446,25 @@ class testCtrl extends appCtrl
 		}
 
 		
+		$query .= ' GROUP BY v.id ';	
 
 
-		/*
+
+			/*		
 			echo '<pre>';
 			echo $query;
 			echo '</pre>';
 			die();
-		*/
+			*/
+			
+		
 		
 
 		if($data['v'] = $this->DB->rawSql($query)->returnData())
 		{
 
 
-			if(isset($_GET['options']) && isset($_GET['options']) == 'true')
+			if(isset($_GET['extras']) && isset($_GET['extras']) == 'true')
 			{
 				$this->DB->table = 'v_options';
 				foreach ($data['v'] as $key => $value) 
