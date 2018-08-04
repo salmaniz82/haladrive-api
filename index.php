@@ -153,6 +153,8 @@ $route->get('/api/vehicles', 'vehiclesCtrl@index');
 
 $route->get('/api/vehicles/q/{params}', 'testCtrl@vehicleQuery');
 
+$route->get('/api/vehicles/b/{params}', 'testCtrl@vehicleQueryArray');
+
 $route->get('/api/vehicles/available/{id}', 'vehiclesCtrl@is_available'); 
 
 $route->get('/api/vehicles/{id}', 'vehiclesCtrl@single');
