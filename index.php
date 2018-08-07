@@ -230,6 +230,10 @@ $route->put('/api/maintain/{id}', 'maintenanceCtrl@update');
 
 $route->delete('/api/maintain/{id}', 'maintenanceCtrl@delete');
 
+$route->get('/faker/vehicles/{records}', 'fakerCtrl@vehicleMassInsert');
+
+
+$route->get('/faker/options/{start_id}/{end_id}', 'optionsMassAttachment');
 
 
 $route->otherwise( function() {
@@ -238,3 +242,9 @@ $route->otherwise( function() {
     View::responseJson($data, 404);
 
 });
+
+
+
+
+
+
