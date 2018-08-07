@@ -141,6 +141,66 @@ class Database
     }
 
 
+    public function multiInsert($dataset)
+    {
+
+        $errCount = 0;
+
+        if(!$dataset || gettype($dataset) != 'array')
+        {  
+            $errCount++;
+            throw new Exception("Argument must be an array");
+            return false;
+        }
+        else if(!array_key_exists('cols', $dataset) && !array_key_exists('vals', $dataset))
+        {
+            $errCount++;
+            throw new Exception("Array missing cols and vals named keys");
+            return false;
+        }
+
+        else if(sizeof($dataset['cols']) != sizeof($dataset['vals'][0]))
+        {
+            $errCount++;
+            throw new Exception("Array Fields size miss matched");
+            return false;
+        }
+
+        if($errCount == 0)
+        {
+            
+            $cols = implode(', ', array_values($dataset['cols']));
+            $vals = $dataset['vals'];
+
+            $this->escArray($dataset['vals']);
+
+            $query = "INSERT INTO $this->table ( " ;
+
+            $query .= $cols . ") VALUES ";
+
+            $counter = 0;
+            foreach ($vals as $key => $value) {
+
+                $query .= " ( ";
+                $query .= "'". implode("', '", $value) ."'"; 
+                $query .= " ) ";
+
+                if(!$counter >= sizeof($vals))
+                {
+                    $query .= ",";
+                }
+
+                $counter++;
+            }
+
+            $this->sqlSyntax = $query;
+            return $this->runQuery();
+
+        }
+
+    }
+
+
     public function update($data, $id)
     {
         if(is_array($data) && !empty($data) && $id != null)
@@ -261,6 +321,19 @@ class Database
         }
 
         return $data;
+
+    }
+
+
+    public function escArray($dataarray)
+    {
+
+        $link = $this->connection;
+        array_walk_recursive($dataarray, function(&$val) use ($link) {
+
+            $val = $link->real_escape_string($val);
+
+        });
 
     }
 

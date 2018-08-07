@@ -236,15 +236,43 @@ $route->get('/faker/vehicles/{records}', 'fakerCtrl@vehicleMassInsert');
 $route->get('/faker/options/{start_id}/{end_id}', 'optionsMassAttachment');
 
 
+$route->get('/multitest', function() {
+
+	$db = new Database();
+	$db->table = 'features';
+
+
+	$features = [];
+
+	$features['cols'] = array('featureEN', 'featureAR', 'status', 'user_id');
+	$features['vals'] = array(
+
+		["Feature EN1", "Feature AR1", 1, 1],
+		["Feature EN2", "Feature AR2", 1, 1]
+		
+	);
+
+
+	try {
+
+		if($db->multiInsert($features))
+		{
+			echo "done";
+		}
+		else {
+			var_dump($db);
+		}
+		
+	} catch (Exception $e) {
+		echo $e->getMessage();
+	}
+
+});
+
+
 $route->otherwise( function() {
 
     $data['message'] = 'Request Not found';
     View::responseJson($data, 404);
 
 });
-
-
-
-
-
-
