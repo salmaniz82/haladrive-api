@@ -332,7 +332,7 @@ class vehiclesCtrl extends appCtrl {
 		     			$data['message'] = 'uploaded to server';
 		     			if( !mkdir('uploads/'.$lastID, 0777, true) )
 		     			{
-		     				$data['message'] .= " but failed to create a directory for slides";
+		     				$data['message'] .= " but failed to create a directory with vehicle id";
 		     			}
 		     			else {
 		     				$data['message'] .= " and slides directory created ";
@@ -357,39 +357,38 @@ class vehiclesCtrl extends appCtrl {
 
 				$this->DB->table = 'v_options';
 				$options = explode(',', $_POST['options']);
+
+				$dataset['cols'] = array('vehicle_id', 'options_id');
+
+
 				
 				for($i=0; $i<=sizeof($options)-1; $i++) { 
 
-					$oKeys = array(
+					$dataset['vals'][$i] = array(
 						'vehicle_id'=> $lastID,
 						'options_id'=> (int)$options[$i]
 					);
 
-					$optlastId = $this->DB->insert($oKeys);
-
 				}
 
-					if($optlastId != false)
-					{
 
+
+					try {
+
+						$this->DB->multiInsert($dataset);
 						$data['status'] = true;
 						$data['message'] = 'New Record added to database with options';
 						$data['last_id'] = $lastID;
 						$statusCode = 200;
-
-					}
-
-					else {
+						
+					} catch (Exception $e) {
 
 						$data['status'] = false;
 						$data['message'] = 'Vehicle added with failed to save related options data';
 						$data['debug'] = $this->DB;
 						$statusCode = 500;
-
+						
 					}
-				
-				
-
 
 			}
 

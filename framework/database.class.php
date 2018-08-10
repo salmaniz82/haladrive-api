@@ -14,6 +14,7 @@ class Database
     public $noRows;
     public $buildStatement;
     public $queryError;
+    public $doPluck = false;
 
 
     public function __construct()
@@ -138,6 +139,15 @@ class Database
 
         }
 
+    }
+
+    public function pluck($col)
+    {
+        $this->sqlSyntax = "SELECT $col FROM $this->table ";
+
+        $this->doPluck = true;
+
+        return $this;
     }
 
 
@@ -398,6 +408,29 @@ class Database
         }
 
         $this->sqlSyntax = $string;
+
+
+        if($this->doPluck)
+        {
+            $this->sqlSyntax .= ' LIMIT 1';         
+            $this->doPluck = false;
+            $this->runQuery();
+            
+            $pluckData = $this->returnData();
+
+            $pluckData = array_values($pluckData[0]);
+            $pluckData = $pluckData[0];
+
+            if(is_numeric($pluckData))
+            {
+                return (int) $pluckData;
+            }
+            else {
+                return $pluckData;   
+            }
+
+            
+        }
 
         return $this;
 
