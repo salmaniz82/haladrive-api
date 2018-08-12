@@ -271,20 +271,6 @@ $route->get('/multitest', function() {
 
 
 
-$route->get('/plucktest', function() {
-
-
-	$db = new Database();
-
-	$db->table = 'vehicles';
-	$data = $db->pluck('user_id')->where('id = 11185');
-
-	var_dump($data);
-
-
-});
-
-
 $route->otherwise( function() {
 
     $data['message'] = 'Request Not found';
