@@ -414,20 +414,35 @@ class Database
         {
             $this->sqlSyntax .= ' LIMIT 1';         
             $this->doPluck = false;
-            $this->runQuery();
+
             
-            $pluckData = $this->returnData();
 
-            $pluckData = array_values($pluckData[0]);
-            $pluckData = $pluckData[0];
+            $this->runQuery();
 
-            if(is_numeric($pluckData))
+
+            if($this->noRows)
             {
-                return (int) $pluckData;
+                $pluckData = $this->returnData();
+
+                    $pluckData = array_values($pluckData[0]);
+                    $pluckData = $pluckData[0];
+
+                    if(is_numeric($pluckData))
+                    {
+                        return (int) $pluckData;
+                    }
+                    else {
+                        return $pluckData;   
+                    }
             }
+
             else {
-                return $pluckData;   
+                return false;
+
+
             }
+            
+            
 
             
         }

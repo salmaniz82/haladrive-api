@@ -1,5 +1,5 @@
 <?php
-class vehicleModule {
+class vehicleModule extends appCtrl {
 
 
 	public $DB;
@@ -22,10 +22,10 @@ class vehicleModule {
 
 	public function is_available($vehicle_id)
 	{
-		$id = (int) $this->getID();	
+		
 		$enabled = '1';
 
-		if($data = $this->DB->pluck('id')->Where("is_available = '".$enabled."'"))
+		if($data = $this->DB->pluck('id')->Where("is_available = " . $enabled . " AND id = ". $vehicle_id))
 		{
 	
 			return $data;				
@@ -41,7 +41,9 @@ class vehicleModule {
 
 	public function pluckVendor_id($vehicle_id)
 	{
-		return $this->DB->pluck('user_id')->where('vehicle_id = $vehicle_id');
+		
+		return $this->DB->pluck('user_id')->where("id = $vehicle_id");
+
 	}
 
 

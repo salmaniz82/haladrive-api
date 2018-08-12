@@ -6,7 +6,7 @@ class bookingModule extends appCtrl {
 	public function __construct()
 	{
 		$this->DB = new Database();
-		$this->table = 'bookings';
+		$this->DB->table = 'bookings';
 	}
 
 
@@ -61,7 +61,7 @@ class bookingModule extends appCtrl {
 
       $query = "SELECT * FROM {$this->DB->table} where vehicle_id = $vehicle_id AND (startdatetime <= '{$enddatetime}' AND enddatetime >= '{$startdatetime}')";
 
-      if($this->DB->rawSql($query)->returnData())
+      if($data = $this->DB->rawSql($query)->returnData())
       {
 	      	return true;	
       }
@@ -132,6 +132,8 @@ class bookingModule extends appCtrl {
 
 	}
 
+	
+
 
 	public function buildBookingListQueryString($user_id, $role_id)
 	{
@@ -195,6 +197,25 @@ class bookingModule extends appCtrl {
 
 	    	return $query;
 	}
+
+
+
+	public function dtDelayPush($dtStringInput)
+    {
+    	
+	    $dtString = new DateTime($dtStringInput);
+		$dtString->add(new DateInterval('PT2H'));
+		return $dtString->format('Y-m-d H:i:s');
+    }
+
+    public function dtDelayPull($dtStringInput)
+    {
+    	
+	    $dtString = new DateTime($dtStringInput);
+		$dtString->sub(new DateInterval('PT2H'));
+		return $dtString->format('Y-m-d H:i:s');
+
+    }
 
 
 }

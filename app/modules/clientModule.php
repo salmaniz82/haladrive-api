@@ -16,11 +16,11 @@ class clientModule {
 
 
 
-	public function isClient($clientID, $vendorID)
+	public function isClient($client_id, $vendor_id)
 	{
 	
 		$this->DB->table = 'vendor_clients';
-		if($id = $db->build('S')->Colums('id')->Where("vendor_id = ". $vendor_id )->Where( "client_id = ". $client_id )->go()->returnData())
+		if($id = $this->DB->build('S')->Colums('id')->Where("vendor_id = ". $vendor_id )->Where( "client_id = ". $client_id )->go()->returnData())
 		{
 			$result = true;
 		}
@@ -65,7 +65,7 @@ class clientModule {
 
 
 
-	public function pluckIdByCivilId($civil_Id)
+	public function pluckIdByCivilId($civilno)
 	{
 
 		if($user_id =$this->DB->pluck('user_id')->Where("civilno = '".$civilno."'"))
