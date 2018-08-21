@@ -13,12 +13,20 @@ class invoiceModule {
 
 	}
 
+<<<<<<< HEAD
 	public function generateInvoice($bookingID)
+=======
+	public function generateInvoice()
+>>>>>>> modular
 	{
 
 	}
 
+<<<<<<< HEAD
 	public function removeInvoice($bookingID)
+=======
+	public function removeInvoice()
+>>>>>>> modular
 	{
 
 	}

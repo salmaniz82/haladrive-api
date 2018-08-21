@@ -181,10 +181,9 @@ $route->put('/api/booking/{id}', 'bookingCtrl@update');
 
 $route->get('/api/bookingcross/{id}', 'bookingCtrl@crossFire');
 
-$route->post('/api/booking', 'bookingCtrl@save');
+$route->post('/api/booking', 'bookingCtrl@commonBookingGateway');
 
 $route->delete('/api/booking/{id}', 'bookingCtrl@delete');
-
 
 
 // INVOICE
@@ -270,19 +269,8 @@ $route->get('/multitest', function() {
 });
 
 
+$route->get('/moduletest', 'moduleTestCtrl@is_available');
 
-$route->get('/plucktest', function() {
-
-
-	$db = new Database();
-
-	$db->table = 'vehicles';
-	$data = $db->pluck('user_id')->where('id = 11185');
-
-	var_dump($data);
-
-
-});
 
 
 $route->otherwise( function() {

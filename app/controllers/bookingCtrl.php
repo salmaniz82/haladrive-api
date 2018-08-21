@@ -19,88 +19,27 @@ class bookingCtrl extends appCtrl {
     	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
 
-    		
-    		
     		$user_id = (int) JwtAuth::$user['id'];
     		$role_id = (int) JwtAuth::$user['role_id'];
-    	
-    		$cDT = $this->Dt_24();
 
-	    	$query = "SELECT b.id, b.vehicle_id, ";
+    		$bookingModule = $this->load('module', 'booking');
 
+    		$result = $bookingModule->listBookings($user_id, $role_id);
 
-	    	if($role_id == 3 || $role_id == 1) 
-	    	{
-	    		$query .= "b.client_id, b.user_id,";	
-	    	}
+    		$data = $result[0];
+    		$statusCode = $result[1];
 
-	    	if($role_id == 4)
-	    	{
-	    		$query .= "b.user_id as vendor_id,";
-	    	}
-
-	    	$query .= " DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
-	    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', 
-	    	DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, ";
-
-	    	if($role_id == 3 || $role_id == 1)
-	    	{
-	    		$query .= " c.name as 'clentNameEN', ";	
-	    	}
-	    	
-
-	    	$query .= " v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno',  
-	    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
-	    	gMaker.titleEN as 'makerEN',
-			gMaker.titleAR as 'makerAR', 
-			
-
-			TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/1440, 2) AS 'forDays',  
-			TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/60, 2) AS 'forHours',  
-
-			DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays', 	
-			TRUNCATE(TIMESTAMPDIFF(MINUTE,  '". $cDT ."', startdatetime)/60, 2) AS 'initHours'  
-
-	    	FROM bookings as b ";
-
-	    	$query .= " INNER JOIN users c on b.client_id = c.id ";
-	    	$query .= " INNER JOIN vehicles v on b.vehicle_id = v.id 
-	    				INNER JOIN gsection gMaker on v.maker = gMaker.id 
-	    				INNER JOIN brands on v.model_id = brands.id ";
-
-		    if($role_id == 3)
-		    {
-		    	$query .= "	WHERE b.user_id = {$user_id} ";	
-		    }
-
-		    if($role_id == 4)
-		    {
-		    	$query .= "	WHERE b.client_id = {$user_id} ";	
-		    }
-
-
-	    	$query .= "	ORDER BY b.id DESC ";
-
-
-	    	if($data['b'] = $this->DB->rawSql($query)->returnData())
-	    	{
-	    		$data['message'] = "Success";
-	    		$statusCode = 200;
-	    			
-	    	}
-	    	else {
-	    		$data['message'] = "Record not found";
-	    		$statusCode = 204;
-	    	}
+    		return view::responseJson($data, $statusCode);
 
     	}
 
     	else {
-    		$data['message'] = "Access Denied";
-    		$statusCode = 401;
+
+    		return $this->uaReponse();
     	}
 
-    	view::responseJson($data, $statusCode);
+    		
+    		
     }
 
 
@@ -144,7 +83,9 @@ class bookingCtrl extends appCtrl {
     	}
 
     	else {
+
     		$data = $this->DB;
+
     	}
 
 
@@ -185,16 +126,147 @@ class bookingCtrl extends appCtrl {
 
 
 
-    public function save()
+    
+    public function commonBookingGateway()
     {
 
-    	if( JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 3) 
+    	$allowedRoles = [1,3,4];
+    	$data = [];
+
+    	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
-			return $this->handleVendorBooking();
-    	}
-    	else if(JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 4)
-    	{
-    		return $this->handleConsumerBooking();
+    		
+
+    		$role_id = (int) JwtAuth::$user['role_id'];	
+
+    		$gump = new GUMP();
+			$_POST = $gump->sanitize($_POST);
+
+			$validationRules = array(
+				'civilno' => 'required',
+				'sDate'    =>  'required|date',
+				'eDate'    =>  'required|date',
+				'sTime'    =>  'required',
+				'eTime'    =>  'required',		
+				'vehicle_id' => 'required|integer'
+			);
+
+			if($role_id == 4) {unset($validationRules['civilno']);}
+
+			$gump->validation_rules($validationRules);
+
+			if($gump->run($_POST) === false)
+			{
+				
+				// validation failed
+				$data['message'] = "Validation Error";
+				$statusCode = 500;
+				return view::responseJson($data, $statusCode);
+			}
+
+			else 
+			{
+				// validaton passes load required modules
+				$vehicleModule = $this->load('module', 'vehicle');
+				$bookingModule = $this->load('module', 'booking');
+				$clientModule = $this->load('module', 'client');
+
+				$vehicle_id = $_POST['vehicle_id'];
+
+				if($role_id == 3)
+				{ // vendor specific
+					$civilno =  $_POST['civilno'];
+
+		 			if(!$client_id = $clientModule->pluckIdByCivilId($civilno))
+		 			{
+		 				// client not found
+		 				$data['message'] = "Client Not Found";
+						$statusCode = 500;
+						return view::responseJson($data, $statusCode);
+
+		 			}
+		 			$user_id = (int) JwtAuth::$user['id'];
+
+		 			$vendor_id = $user_id;
+				}
+				if($role_id == 4)
+				{ // client specific
+					unset($validationRules['civilno']);	
+		 			
+		 			if(!$vendor_id = (int) $vehicleModule->pluckVendor_id($vehicle_id))
+		 			{
+		 				$data['message'] = "Vehicle Not Found";
+						$statusCode = 500;
+						return view::responseJson($data, $statusCode);
+		 			}
+
+		 			$user_id = $vendor_id;
+		 			$client_id = (int) JwtAuth::$user['id'];	
+				}
+
+
+				$keys = array('vehicle_id', 'sDate', 'eDate', 'sTime', 'eTime');
+				$keys = $this->DB->sanitize($keys);
+				$keys['client_id'] = $client_id;
+				$keys['user_id'] = $user_id;
+				$keys['expired'] = 0;
+				// format start and end time
+				$this->prepareDateTime($keys);
+				$keys['status'] = 'pending';
+
+				if( $vehicleModule->is_available($vehicle_id) )
+				{
+
+					if(!$bookingModule->is_reserved($vehicle_id, $keys['startdatetime'], $keys['enddatetime']))
+					{
+
+						if($lastID = $bookingModule->addBooking($keys))
+						{
+
+							
+							$data['message'] = 'New Booking created with ';
+
+							if(!$clientModule->isClient($client_id, $vendor_id))
+							{							
+								
+								$data['message'] .= ($role_id == 3) ? "New Client" : "New Vendor ";
+								
+								$clientModule->addClient($client_id, $vendor_id);
+
+							}
+
+							$data['message'] .= ($role_id == 3) ? "Existing Client" : "Existing Vendor ";
+							$statusCode = 200;
+							return view::responseJson($data, $statusCode);
+
+							
+						}
+						else {
+
+							$data['message'] = "Error While Adding Booking";
+							$statusCode = 500;
+							return view::responseJson($data, $statusCode);
+
+						}
+
+					}
+					else {
+						$data['message'] = "Not available with provided date and time";
+						$statusCode = 500;
+						return view::responseJson($data, $statusCode);
+					}
+					
+				}
+
+				else {
+						$data['message'] = "Vehicle is not avaible";
+						$statusCode = 500;
+						return view::responseJson($data, $statusCode);
+				}
+
+			}
+
+
     	}
     	else {
 
@@ -202,273 +274,6 @@ class bookingCtrl extends appCtrl {
 
     	}
 
-    }
-
-
-    public function handleVendorBooking()
-    {
-
-    	if(JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 3)
-    	{
-
-		 	$gump = new GUMP();
-			$_POST = $gump->sanitize($_POST);
-			$gump->validation_rules(array(		
-			'civilno' => 'required',
-			'sDate'    =>  'required|date',
-			'eDate'    =>  'required|date',
-			'sTime'    =>  'required',
-			'eTime'    =>  'required',		
-			'vehicle_id' => 'required|integer'
-
-		));
-
-		$pdata = $gump->run($_POST);
-
-		if($pdata === false)
-		{
-			$data['message'] = 'Required data is missing';
-			$data['post'] = $_POST;
-		}
-		else{
-
-			$vehicle_id = $_POST['vehicle_id'];
-
-			if($is_available = view::fetchRoute('api/vehicles/available/'.$vehicle_id))
-			{
-
-				
-		 		$civilno =  $_POST['civilno'];
-		 		$this->DB->table = 'clients';
-
-		 		if( $client_id = $this->DB->build('S')->Colums('user_id')->Where("civilno = '".$civilno."'")->Where("status = 1")->go()->returnData() ) 
-				{
-				$this->DB->table = 'bookings';	
-
-				// set the array keys received via form
-
-				$user_id = (int) JwtAuth::$user['id'];
-
-				$keys = array('vehicle_id', 'sDate', 'eDate', 'sTime', 'eTime');
-				$keys = $this->DB->sanitize($keys);
-
-
-				$keys['client_id'] = $client_id[0]['user_id'];
-				$keys['user_id'] = $user_id;
-				$keys['expired'] = 0;
-
-				// format start and end time
-
-				$keys['sTime'] = $this->convertToMysqlTime($keys['sTime']);	
-				$keys['eTime'] = $this->convertToMysqlTime($keys['eTime']);
-
-				// combine start date and time
-				$keys['startdatetime'] = $this->mergeDateTime($keys['sDate'], $keys['sTime']);
-				$keys['enddatetime'] = $this->mergeDateTime($keys['eDate'], $keys['eTime']);
-				$keys['status'] = 'pending';
-
-
-				$is_reserved = $this->bookingReserved($vehicle_id, $keys['startdatetime'], $keys['enddatetime']);
-
-				$data['bookng'] = $is_reserved;
-
-				if(!$is_reserved)
-				{
-					
-					if($lastID = $this->DB->insert($keys))
-					{
-
-						$statusCode = 201;
-						$data['message'] = 'Booking added Successfully';
-						$data['pdata'] = $keys;
-
-						// client assignment check
-
-						if( $this->isClient($user_id, $client_id) == null)
-						{
-							$data['message'] .= ': Existing Client';
-						}	
-						else {
-							$data['message'] .= ': New Client';
-						}
-						
-					}
-
-					else {
-						$data['message'] = 'Failed to add booking please try with another date/time';
-						$data['pdata'] = $keys;
-						$data['debug'] = $this->DB;
-						$statusCode = 406;
-					}
-
-				}
-
-				else {
-					$data['message'] = 'Vehicle is reserved with provided date time combination';
-					$statusCode = 406;
-				}
-
-
-				// combine date and time
-			}
-
-				else {
-					// client not found find any active client with associated with this provided email;
-					$data['message'] = 'Client is not enabled or does not exist';
-					$statusCode = 406;
-				}
-
-			} // vehicle is available
-
-			else {
-
-				$data['message'] = 'This Vehicle is not available for booking at the moment';
-				$statusCode = 406;
-
-			}
-
-			} // validation passes
-		
-    	} 
-
-    	
-		
-		return view::responseJson($data, $statusCode);
-
-    }
-
-    public function handleConsumerBooking()
-    {
-    	
-    	$gump = new GUMP();
-		$_POST = $gump->sanitize($_POST);
-
-		$gump->validation_rules(array(
-		'sDate'    =>  'required|date',
-		'eDate'    =>  'required|date',
-		'sTime'    =>  'required',
-		'eTime'    =>  'required',		
-		'vehicle_id' 	=> 'required|integer')
-		);
-
-		if($gump->run($_POST) === false)
-		{
-			$data['message'] = 'Required data is missing';
-			$data['post'] = $_POST;
-		} 
-
-		else{
-
-			$vehicle_id = $_POST['vehicle_id'];
-
-			if($is_available = view::fetchRoute('api/vehicles/available/'.$vehicle_id))
-			{
-					$vendor_id = (int) $is_available[0]['user_id'];
-					$this->DB->table = 'bookings';
-					// set the array keys received via form
-					
-					;
-					$keys = array('vehicle_id', 'sDate', 'eDate', 'sTime', 'eTime');
-					$keys = $this->DB->sanitize($keys);
-
-					$keys['client_id'] = (int) JwtAuth::$user['id'];
-					$keys['user_id'] = $vendor_id; // vendor id substitution
-					$keys['expired'] = 0;
-
-					// format start and end time
-
-					$keys['sTime'] = $this->convertToMysqlTime($keys['sTime']);	
-					$keys['eTime'] = $this->convertToMysqlTime($keys['eTime']);
-
-					// combine start date and time
-					$keys['startdatetime'] = $this->mergeDateTime($keys['sDate'], $keys['sTime']);
-					$keys['enddatetime'] = $this->mergeDateTime($keys['eDate'], $keys['eTime']);
-					$keys['status'] = 'pending';
-
-
-				if(! $this->bookingReserved($vehicle_id, $keys['startdatetime'], $keys['enddatetime']) )
-				{
-					
-					if($lastID = $this->DB->insert($keys))
-					{
-
-						$statusCode = 200;
-						$data['message'] = 'Booking added Successfully';
-						
-						if( $this->isClient($vendor_id, $keys['client_id']) == null)
-						{
-							$data['message'] .= ': Existing Client';
-						}	
-						else {
-							$data['message'] .= ': New Client';
-						}
-						
-					}
-
-					else {
-						$data['message'] = 'Failed to add booking please try with another date/time';
-						$statusCode = 406;
-					}
-
-				}
-
-				else {
-					$data['message'] = 'Vehicle is reserved with provided date time combination';
-					$statusCode = 406;
-				}
-
-			}
-			else {
-					$data['message'] = 'This Vehicle is not available for booking at the moment';
-					$statusCode = 406;
-				}
-
-		}
-    	
-    	return view::responseJson($data, $statusCode);
-
-    }
-
-
-
-    public function bookingReserved($vehicle_id, $startdatetime, $enddatetime)
-    {
-      
-      $vehicle_id = (int)$vehicle_id;   
-
-      $startdatetime = $this->dtDelayPull($startdatetime);
-      $enddatetime = $this->dtDelayPush($enddatetime);
-
-      $query = "SELECT * FROM bookings where vehicle_id = $vehicle_id AND (startdatetime <= '{$enddatetime}' AND enddatetime >= '{$startdatetime}')";
-
-
-
-
-      if($data = $this->DB->rawSql($query)->returnData())
-      {
-      	return true;	
-      }
-      else {
-      	return false;	
-      }
-     
-    }
-
-
-    public function dtDelayPush($dtStringInput)
-    {
-    	
-	    $dtString = new DateTime($dtStringInput);
-		$dtString->add(new DateInterval('PT2H'));
-		return $dtString->format('Y-m-d H:i:s');
-    }
-
-    public function dtDelayPull($dtStringInput)
-    {
-    	
-	    $dtString = new DateTime($dtStringInput);
-		$dtString->sub(new DateInterval('PT2H'));
-		return $dtString->format('Y-m-d H:i:s');
 
     }
 
@@ -590,6 +395,7 @@ class bookingCtrl extends appCtrl {
 				else {
 					$keys['initiated_at'] = $datetimeStamp;
 				}
+
 				$startMileage = view::fetchRoute('api/vehicles/available/'.$vehicle_id)[0]['mileage'];
 
 				if($keys['status'] !== 'cancelled')
@@ -769,6 +575,18 @@ class bookingCtrl extends appCtrl {
 				return null;
 			}
 			
+
+	}
+
+
+
+	public function prepareDateTime(&$keys)
+	{
+	
+		$keys['sTime'] = $this->convertToMysqlTime($keys['sTime']);	
+		$keys['eTime'] = $this->convertToMysqlTime($keys['eTime']);
+		$keys['startdatetime'] = $this->mergeDateTime($keys['sDate'], $keys['sTime']);
+		$keys['enddatetime'] = $this->mergeDateTime($keys['eDate'], $keys['eTime']);
 
 	}
 
