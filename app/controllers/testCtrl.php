@@ -97,6 +97,7 @@ class testCtrl extends appCtrl
 	{
 
 
+
 		if(JwtAuth::validateToken())
 		{
 			$role_id = (int) JwtAuth::$user['role_id'];
@@ -300,12 +301,28 @@ class testCtrl extends appCtrl
 	public function vehicleQueryArray()
 	{
 
+		
 
+		if(isset($_GET['limit']))
+		{
+			$limit = (int) $_GET['limit'];
+		}
+		else {
+			$limit = 10;
+		}
 
+		if(isset($_GET['page']))
+		{
+			$page = $_GET['page'];
+		}
+		else {
+			$page = 1;	
+		}
 
-		$query = "SELECT v.id as 'id', v.photo as 'photo', v.nameEN as 'carnameEN', v.nameAR as 'carnameAR', v.year as 'year', v.series as 'series', v.vin as 'vin',
+		
+		$query = "SELECT SQL_CALC_FOUND_ROWS v.id as 'id', v.photo as 'photo', v.nameEN as 'carnameEN', v.nameAR as 'carnameAR', v.year as 'year', v.series as 'series', v.vin as 'vin',
 		v.mileage as 'mileage', v.price as 'price', v.owner as 'owner', v.nokeys as 'nokeys', v.acdamage as 'accident_damage', v.status as 'status', 
-		v.is_available as 'is_available', count(vo.options_id) as 'noOFoptions',  
+		v.is_available as 'is_available',   
 
 		gBody.titleEN as 'bodystyleEN',
 		gBody.titleAR as 'bodystyleAR',
@@ -330,7 +347,7 @@ class testCtrl extends appCtrl
 		brands.nameAR as 'modelAR'
 
 
-		FROM vehicles as v
+		FROM vehicles v 
 		INNER JOIN gsection gBody on v.bodystyle = gBody.id 
 		INNER JOIN gsection gMaker on v.maker = gMaker.id 
 		INNER JOIN gsection gTrans on v.trans = gTrans.id 
@@ -339,7 +356,7 @@ class testCtrl extends appCtrl
 		INNER JOIN gsection gFuel on v.fuel = gFuel.id 
 		INNER JOIN brands on v.model_id = brands.id 
 		INNER JOIN v_options vo on v.id = vo.vehicle_id 
-		LEFT JOIN gsection gOptions on vo.options_id = gOptions.id ";
+		INNER JOIN gsection gOptions on vo.options_id = gOptions.id ";
 	
 
 
@@ -445,8 +462,12 @@ class testCtrl extends appCtrl
 			$query .= $this->appendQuery($query, $string);
 		}
 
-		
-		$query .= ' GROUP BY v.id ';	
+		$pageCursor = ($page - 1) * $limit;
+
+		$query .= ' GROUP BY v.id ';
+		$query .= ' ORDER BY v.id '; 
+		$query .= " LIMIT {$pageCursor},  {$limit}";
+
 
 
 
@@ -455,7 +476,9 @@ class testCtrl extends appCtrl
 			echo $query;
 			echo '</pre>';
 			die();
+
 			*/
+			
 			
 		
 		
@@ -477,8 +500,15 @@ class testCtrl extends appCtrl
 			
 			}
 
+			$totalMatched = $this->getTotalMatched();
 			$statusCode = 200;
-			$data['records'] = $this->DB->noRows;
+			$data['records'] = $totalMatched;
+			$data['limit'] = $limit;
+			$data['noPages'] = ceil($totalMatched / $limit);
+			$data['currentPage'] = (int) $page;
+			
+
+
 
 		}// @endif $data primary
 
@@ -490,11 +520,19 @@ class testCtrl extends appCtrl
 				$statusCode = 500;
 			}
 
-
 		view::responseJson($data, $statusCode);
 
+	}
 
 
+
+	public function getTotalMatched()
+	{
+		$sqlTotal = "SELECT FOUND_ROWS() as 'totalMatched'";
+		$this->DB->table = 'vehicles';
+
+		$totalRecords = $this->DB->rawSql($sqlTotal)->returnData();
+		return $totalRecords[0]['totalMatched'];
 	}
 
 	
