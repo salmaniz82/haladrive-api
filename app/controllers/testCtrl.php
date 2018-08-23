@@ -462,6 +462,13 @@ class testCtrl extends appCtrl
 			$query .= $this->appendQuery($query, $string);
 		}
 
+
+		
+		$isActive = " v.status = 1 ";
+		$query .= $this->appendQuery($query, $isActive);
+
+		
+
 		$pageCursor = ($page - 1) * $limit;
 
 		$query .= ' GROUP BY v.id ';
