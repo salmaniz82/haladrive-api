@@ -10,7 +10,7 @@ class fakerCtrl extends appCtrl
 
 
 	public function randomHex() {
-    	return strtoupper(random_color_part() . random_color_part() . random_color_part());
+    	return strtoupper($this->random_color_part() . $this->random_color_part() . $this->random_color_part());
 	}
 
 	public function randomPrefix()
@@ -53,7 +53,7 @@ class fakerCtrl extends appCtrl
 		$priceAr = range(100,10000);
 		$mileageAr = range(2500,25000);
 		$modelAr = range(20,37);
-		$photoAr = range(0, 664);
+		$photoAr = range(1, 664);
 		$userAr = array(4,5,6,7,8,12,11,14);
 
 
@@ -83,20 +83,20 @@ class fakerCtrl extends appCtrl
 		for($i=0; $i <= $limiter; $i++)
 		{
 			
-			$photo = "'faker/faker_thumb_ (".randomizeIt($photoAr).").jpg'";
-			$user_id = e(randomizeIt($userAr));
-			$bodyStyle = e(randomizeIt($bodyStyleAr));
-			$maker = e(randomizeIt($brandAr));
-			$model_id = e(randomizeIt($modelAr));
-			$year = e(randomizeIt($yearAr));
-			$series = e(randomPrefix().'-'.randomHex());
-			$vin = e(randomPrefix().'-'.randomHex());
-			$mileage = e(randomizeIt($mileageAr));
-			$price = e(randomizeIt($priceAr));
-			$trans = e(randomizeIt($transmissonAr));
-			$dtrain = e(randomizeIt($driveTrainAr));
-			$engine = e(randomizeIt($engineAr));
-			$fuel = e(randomizeIt($fuelAr));
+			$photo = "'faker/faker_thumb_ (".$this->randomizeIt($photoAr).").jpg'";
+			$user_id = e($this->randomizeIt($userAr));
+			$bodyStyle = e($this->randomizeIt($bodyStyleAr));
+			$maker = e($this->randomizeIt($brandAr));
+			$model_id = e($this->randomizeIt($modelAr));
+			$year = e($this->randomizeIt($yearAr));
+			$series = e($this->randomPrefix().'-'.$this->randomHex());
+			$vin = e($this->randomPrefix().'-'.$this->randomHex());
+			$mileage = e($this->randomizeIt($mileageAr));
+			$price = e($this->randomizeIt($priceAr));
+			$trans = e($this->randomizeIt($transmissonAr));
+			$dtrain = e($this->randomizeIt($driveTrainAr));
+			$engine = e($this->randomizeIt($engineAr));
+			$fuel = e($this->randomizeIt($fuelAr));
 			$owner = e(1);
 			$nokeys = e(1);
 			$acdamage = e(1);
@@ -116,7 +116,7 @@ class fakerCtrl extends appCtrl
 			foreach($ValuesAr as $key => $values )
 			{				
 					
-					$queryString .= $values;
+				$queryString .= $values;
 			}
 
 			$queryString = rtrim($queryString, ',');
@@ -124,6 +124,8 @@ class fakerCtrl extends appCtrl
 		
 			$db->table = 'vehicles';
 			$db->sqlSyntax = $queryString;
+
+			
 			
 			if($db->runQuery())
 			{
@@ -131,8 +133,6 @@ class fakerCtrl extends appCtrl
 			}else {
 				var_dump($db->queryError);
 			}
-			
-
 
 			$s_ID  = $db->rawSql("SELECT max(id) as 'mxID' from vehicles")->returnData();
 			echo "End". $s_ID[0]['mxID'] . "<br>";
@@ -196,6 +196,8 @@ class fakerCtrl extends appCtrl
 		
 		
 		$db->sqlSyntax = $optQuery;
+
+			
 		if($db->runQuery())
 		{
 			
@@ -204,6 +206,9 @@ class fakerCtrl extends appCtrl
 		} else {
 			var_dump($db->queryError);
 		}
+		
+
+
 
 		$e_ID  = $db->rawSql("SELECT max(id) as 'mxID' from v_options")->returnData();
 			echo "EndedAtID". $e_ID[0]['mxID'] . "<br>";

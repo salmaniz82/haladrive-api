@@ -1,30 +1,7 @@
 <?php
-class clientModule {
+class clientModule extends appCtrl{
 
 
-<<<<<<< HEAD
-	public function isClientLinkedToVendor($clientID, $vendorID)
-	{
-
-
-	}
-
-	public function addCleintToList($clientID, $vendorID)
-	{
-
-	}
-
-	public function removeClientFromVendor($clientID, $vendorID)
-	{
-
-	}
-
-
-	public function removeVendorFromClient($clientID, $vendorID)
-	{
-
-		
-=======
 	public $DB;
 
 
@@ -100,15 +77,10 @@ class clientModule {
 			return false;
 		}
 
->>>>>>> modular
+
 	}
 
 
 	
-<<<<<<< HEAD
-=======
 
-
-	
->>>>>>> modular
 }

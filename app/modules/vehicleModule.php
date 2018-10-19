@@ -1,39 +1,9 @@
 <?php
-<<<<<<< HEAD
-class vehicleModule {
 
-
-	public function addVehicle()
-	{
-
-	}
-
-	public function removeVehicle()
-	{
-
-	}
-
-
-	public function udpateVehicle()
-	{
-
-	}
-
-	public function addOptions()
-	{
-
-	}
-
-	public function addSlides()
-	{
-		
-	}
-=======
 class vehicleModule extends appCtrl {
 
 
 	public $DB;
-
 
 	public function __construct()
 	{
@@ -41,13 +11,6 @@ class vehicleModule extends appCtrl {
 		$this->DB = new Database();
         $this->DB->table = 'vehicles';
 	}
-
-
-
-
-
-
-
 
 
 	public function is_available($vehicle_id)
@@ -76,8 +39,5 @@ class vehicleModule extends appCtrl {
 
 	}
 
-
-	
->>>>>>> modular
 	
 }

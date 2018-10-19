@@ -8,7 +8,9 @@ class appCtrl {
 
 		if($loadType == 'module')
 		{
-			require_once ABSPATH.'app/modules/'.$Loadentity.'Module.php';
+			
+			
+			require_once ABSPATH.'modules/'.$Loadentity.'Module.php';
 			$ModuleClass =  $Loadentity.'Module';
 			return new $ModuleClass();
 		}

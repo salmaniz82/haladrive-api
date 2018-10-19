@@ -1,27 +1,5 @@
 <?php
-<<<<<<< HEAD
-class bookingModule {
 
-
-	public function slotAvailableForBooking()
-	{
-
-	}
-
-
-	public function addVendorBooking()
-	{
-
-
-	}
-
-	public function addClientBooking()
-	{
-
-
-	}
-
-=======
 class bookingModule extends appCtrl {
 
 	public $DB;
@@ -112,66 +90,7 @@ class bookingModule extends appCtrl {
 	}
 
 	
->>>>>>> modular
-	public function cancleBooking()
-	{
 
-
-
-	}
-
-	public function approveBooking()
-	{
-
-<<<<<<< HEAD
-=======
-
->>>>>>> modular
-	}
-
-	public function removeBooking()
-	{
-
-<<<<<<< HEAD
-=======
-
-
->>>>>>> modular
-	}
-
-
-	public function initiateBooking()
-	{
-
-<<<<<<< HEAD
-=======
-
-
->>>>>>> modular
-	}
-
-	public function completeBooking()
-	{
-
-<<<<<<< HEAD
-=======
-
->>>>>>> modular
-	}
-
-
-	public function updateMiles()
-	{
-
-
-
-<<<<<<< HEAD
-	}
-
-
-=======
-
-	}
 
 	
 
@@ -259,5 +178,5 @@ class bookingModule extends appCtrl {
     }
 
 
->>>>>>> modular
+
 }
