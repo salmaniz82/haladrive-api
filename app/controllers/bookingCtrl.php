@@ -160,7 +160,7 @@ class bookingCtrl extends appCtrl {
 				
 				// validation failed
 				$data['message'] = "Validation Error";
-				$statusCode = 500;
+				$statusCode = 406;
 				return view::responseJson($data, $statusCode);
 			}
 
@@ -213,6 +213,18 @@ class bookingCtrl extends appCtrl {
 				// format start and end time
 				$this->prepareDateTime($keys);
 				$keys['status'] = 'pending';
+
+
+				$tolerance = $bookingModule->validateDuration($keys['startdatetime'], $keys['enddatetime'], (double)2);
+
+				if(is_array($tolerance))
+				{		
+					
+					$data['message'] = $tolerance['message'];
+					$statusCode = 406;
+				return view::responseJson($data, $statusCode);
+
+				}
 
 				if( $vehicleModule->is_available($vehicle_id) )
 				{
@@ -589,6 +601,9 @@ class bookingCtrl extends appCtrl {
 		$keys['enddatetime'] = $this->mergeDateTime($keys['eDate'], $keys['eTime']);
 
 	}
+
+
+
 
 
 }

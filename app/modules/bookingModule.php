@@ -178,5 +178,151 @@ class bookingModule extends appCtrl {
     }
 
 
+    public function validateDuration($startPoint, $endPoint, $hoursTreshold = null)
+	{
+
+
+
+		if($hoursTreshold ==  null)
+		{
+			// there is no timeThreshold provided 
+
+			echo 'Just compare dates' . "<br>";
+
+			$startPoint = new DateTime($startPoint);
+			$endPoint = new DateTime($endPoint);
+
+			if($startPoint == $endPoint)
+			{
+				
+				echo 'both dates are equal';
+				return array (
+
+					'status' => true,
+					'message' => 'Both Time are Equal'
+
+				);
+			}
+			else if ($startPoint < $endPoint) 
+			{
+
+				echo 'start is less';
+				return array (
+
+					'status' => true,
+					'message' => 'Start Time is Less'
+
+				);
+			}
+
+			else if ($startPoint > $endPoint)
+			{
+				echo 'Error: Start Date cannot be lesser than End Date';	
+
+				return array (
+
+					'status' => false,
+					'message' => 'Start Date cannot be lesser than End Date'
+				);
+			}
+			else {
+
+				echo 'Expected Dates format is YYYY-MM-DD';
+
+				return array (
+
+					'status' => false,
+					'message' => 'Expected Dates format is YYYY-MM-DD'
+				);
+				
+			}
+
+
+		}
+
+		else {
+
+			// compare time and treshold
+			if($this->validateDateTimeFormat($startPoint) && $this->validateDateTimeFormat($endPoint))
+			{
+
+				
+				$dateTimeObj = new Datetime();
+
+				$startDateTimeObj = $dateTimeObj->createFromFormat('Y-m-d H:i:s', $startPoint);
+				$endDateTimeObj = $dateTimeObj->createFromFormat('Y-m-d H:i:s', $endPoint);
+
+				$interval = $startDateTimeObj->diff($endDateTimeObj);
+				$bookingDuration = (double) $interval->format('%h.%i');
+
+				$hoursTreshold = (double) $hoursTreshold;
+
+				if($startDateTimeObj > $endDateTimeObj)
+				{
+					return array (
+
+						'status' => false,
+						'message' => 'Start Date cannot be lesser than End Date'
+					);
+				}
+
+
+				else if($hoursTreshold <= $bookingDuration)
+				{
+					
+					return true;
+				}
+
+				else {
+
+					return array (
+						'status' => false,
+						'message' => "Booking duration is not under ". $hoursTreshold . ' mark '
+					);
+					
+				}
+
+
+
+
+			}
+			else {
+
+
+				return array (
+
+					'status' => false,
+					'message' => 'Datetime format is invalid'
+				);
+
+				
+
+			}
+
+
+
+		}
+
+	}
+
+
+	public function validateDateTimeFormat($inputDateTime)
+	{
+
+		$dt = new Datetime();
+
+		if($dt->createFromFormat('Y-m-d H:i:s', $inputDateTime))
+		{
+			
+			return true;
+		}
+		else {
+			
+			return false;
+		}
+
+	}
+
+
 
 }
