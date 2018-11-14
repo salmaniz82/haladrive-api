@@ -2,4 +2,5 @@ app/config.php
 haladrive-api.sql
 uploads/
 DB/
+/backups
 .htaccess
