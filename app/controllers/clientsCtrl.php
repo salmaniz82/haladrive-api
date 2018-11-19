@@ -63,9 +63,11 @@ class clientsCtrl extends appCtrl {
     {
 
         $userID = (int) $this->jwtUserId();
-        $query = "SELECT c.civilno, c.photo from vendor_clients as vc 
-        INNER JOIN clients c on c.id = vc.client_id 
-        WHERE vc.vendor_id = $userID AND c.status = 1";
+
+        $query = "SELECT c.civilno, c.photo from clients c
+        inner join vendor_clients v
+        on v.client_id = c.user_id
+        where v.vendor_id = $userID AND v.status = 1";
 
         if($row = $this->DB->rawSql($query)->returnData())
         {
@@ -73,6 +75,11 @@ class clientsCtrl extends appCtrl {
             foreach ($row as $key => $value) {
                 $data[$value['civilno']] = $value['photo'];
             }
+        }
+
+        else {
+            $data['civilno'] = null;
+            $statusCode = 406;
         }
 
         return  view::responseJson($data, 200);
