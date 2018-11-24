@@ -15,6 +15,20 @@
 
 	}
 
+	public function updateMileage()
+    {
+
+        $id = 12139;
+
+        $vehicleModule = $this->load('module', 'vehicle');
+
+        $data['mileage'] = '321900';
+
+        $result = $vehicleModule->updateMileage($data, $id);
+
+
+    }
+
 
 
 

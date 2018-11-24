@@ -34,7 +34,7 @@ class invoiceCtrl extends appCtrl {
         $query = "SELECT i.id, DATE_FORMAT(i.created_at, '%d-%m-%y %h:%i %p') as 'created_at', i.booking_id, i.perDay, 
         b.vehicle_id, b.client_id, (b.endMileage  - b.startMileage) as 'mileage',  
         c.nameEN, c.nameAR, 
-        TRUNCATE(TIMESTAMPDIFF(MINUTE, b.startdatetime, b.enddatetime)/60, 2) AS 'HRS', 
+        TRUNCATE(TIMESTAMPDIFF(MINUTE, b.initiated_at, b.completed_at)/60, 2) AS 'HRS', 
         v.vin, ROUND((SELECT HRS * i.perDay), 2) as 'Amount', v.year, 
         gMaker.titleEN as 'makerEN', gMaker.titleAR as 'makerAR', 
         gBody.titleEN as 'bodyEN', gBody.titleAR as 'bodyAR',   

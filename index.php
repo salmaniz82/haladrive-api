@@ -221,6 +221,9 @@ $route->get('/faker/options/{start_id}/{end_id}', 'fakerCtrl@optionsMassAttachme
 $route->get('/moduletest', 'moduleTestCtrl@is_available');
 
 
+$route->get('/updatemileage', 'moduleTestCtrl@updateMileage');
+
+
 
 $route->otherwise( function() {
 

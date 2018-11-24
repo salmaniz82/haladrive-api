@@ -12,34 +12,20 @@ class bookingCtrl extends appCtrl {
 
     public function index()
     {
-    	
     	$allowedRoles = [1,3,4];
-    	$data = [];
-
     	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
-
     		$user_id = (int) JwtAuth::$user['id'];
     		$role_id = (int) JwtAuth::$user['role_id'];
-
     		$bookingModule = $this->load('module', 'booking');
-
     		$result = $bookingModule->listBookings($user_id, $role_id);
-
     		$data = $result[0];
     		$statusCode = $result[1];
-
     		return view::responseJson($data, $statusCode);
-
     	}
-
     	else {
-
     		return $this->uaReponse();
     	}
-
-    		
-    		
     }
 
 
@@ -48,85 +34,24 @@ class bookingCtrl extends appCtrl {
     {
 
     	$id = $this->getID();
-    	
     	$data = [];
 
+        $bookingModule = $this->load('module', 'booking');
 
-		$cDT = $cDT = $this->Dt_24();
+        if($result = $bookingModule->getSingle($id))
+        {
+            $data = $result[0];
+            $statusCode = $result[1];
+        }
+        else {
+            $data['message'] = "Record Not found";
+            $statusCode = 404;
+        }
 
-    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, DATE_FORMAT(b.sDate, '%d-%m-%Y') as 'sDate', b.eDate, b.sTime, b.eTime, 
-    	DATE_FORMAT(b.startdatetime, '%d-%m-%Y %h:%i %p') AS 'startdatetime', DATE_FORMAT(b.enddatetime, '%d-%m-%Y %h:%i %p') AS 'enddatetime', b.expired, b.status, 
-    	c.nameEN as 'clentNameEN', c.nameAR as 'clentNameAR',
-    	v.photo as 'vphoto', v.mileage as 'mileage', v.vin as 'plateno', v.perDay as 'perDay',  
-    	brands.nameEN as 'modelEN', brands.nameAR as 'modelAR', 
-    	gMaker.titleEN as 'makerEN',
-		gMaker.titleAR as 'makerAR' , 
-		
-
-		TIMESTAMPDIFF(DAY, startdatetime, enddatetime) AS 'forDays',  
-		TRUNCATE(TIMESTAMPDIFF(MINUTE, startdatetime, enddatetime)/60, 2) AS 'forHours', 
-
-		DATEDIFF(b.enddatetime, '". $cDT ."') AS 'exInDays'	
-
-    	FROM bookings as b
-    	INNER JOIN clients c on b.client_id = c.user_id 
-    	INNER JOIN vehicles v on b.vehicle_id = v.id 
-    	INNER JOIN gsection gMaker on v.maker = gMaker.id 
-    	INNER JOIN brands on v.model_id = brands.id WHERE b.id = $id";
-
-    	if($data = $this->DB->rawSql($query)->returnData())
-    	{
-
-    		
-
-
-    	}
-
-    	else {
-
-    		$data = $this->DB;
-
-    	}
-
-
-    	view::responseJson($data, 200);
+        view::responseJson($data, $statusCode);
 
     }
 
-
-    public function crossFire()
-    {
-    	
-    	$data = [];
-    	$query = "SELECT b.id, b.user_id, b.vehicle_id, b.client_id, b.sDate, b.eDate, 
-    	b.sTime, b.eTime, b.startdatetime, b.enddatetime, b.expired, 
-    	c.nameEN as 'clentNameEN', c.nameAR as 'clentNameAR'
-    	FROM bookings as b
-    	INNER JOIN clients c on b.client_id = c.id";
-    	if($data = $this->DB->rawSql($query)->returnData())
-    	{
-		
-
-    		foreach ($data as $key => $value) {
-    			$vehicle_id = $value['vehicle_id'];
-
-
-    			$data[$key]['v'] = view::fetchRoute('api/vehicles/'.$vehicle_id)['v'];
-    		}
-
-    	}
-
-    	else {
-    		$data['debug'] = $this->DB;
-    	}
-
-    	view::responseJson($data, 200);
-
-    }
-
-
-
-    
     public function commonBookingGateway()
     {
 
@@ -135,10 +60,7 @@ class bookingCtrl extends appCtrl {
 
     	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
-    		
-
-    		$role_id = (int) JwtAuth::$user['role_id'];	
-
+    		$role_id = (int) JwtAuth::$user['role_id'];
     		$gump = new GUMP();
 			$_POST = $gump->sanitize($_POST);
 
@@ -152,12 +74,9 @@ class bookingCtrl extends appCtrl {
 			);
 
 			if($role_id == 4) {unset($validationRules['civilno']);}
-
 			$gump->validation_rules($validationRules);
-
 			if($gump->run($_POST) === false)
 			{
-				
 				// validation failed
 				$data['message'] = "Validation Error";
 				$statusCode = 406;
@@ -170,40 +89,32 @@ class bookingCtrl extends appCtrl {
 				$vehicleModule = $this->load('module', 'vehicle');
 				$bookingModule = $this->load('module', 'booking');
 				$clientModule = $this->load('module', 'client');
-
 				$vehicle_id = $_POST['vehicle_id'];
-
 				if($role_id == 3)
 				{ // vendor specific
 					$civilno =  $_POST['civilno'];
 
 		 			if(!$client_id = $clientModule->pluckIdByCivilId($civilno))
-		 			{
-		 				// client not found
+		 			{// client not found
 		 				$data['message'] = "Client Not Found";
 						$statusCode = 500;
 						return view::responseJson($data, $statusCode);
-
 		 			}
 		 			$user_id = (int) JwtAuth::$user['id'];
-
 		 			$vendor_id = $user_id;
 				}
 				if($role_id == 4)
 				{ // client specific
-					unset($validationRules['civilno']);	
-		 			
+					unset($validationRules['civilno']);
 		 			if(!$vendor_id = (int) $vehicleModule->pluckVendor_id($vehicle_id))
 		 			{
 		 				$data['message'] = "Vehicle Not Found";
 						$statusCode = 500;
 						return view::responseJson($data, $statusCode);
 		 			}
-
 		 			$user_id = $vendor_id;
 		 			$client_id = (int) JwtAuth::$user['id'];	
 				}
-
 
 				$keys = array('vehicle_id', 'sDate', 'eDate', 'sTime', 'eTime');
 				$keys = $this->DB->sanitize($keys);
@@ -214,76 +125,52 @@ class bookingCtrl extends appCtrl {
 				$this->prepareDateTime($keys);
 				$keys['status'] = 'pending';
 
-
 				$tolerance = $bookingModule->validateDuration($keys['startdatetime'], $keys['enddatetime'], (double)2);
 
 				if(is_array($tolerance))
-				{		
-					
+				{
 					$data['message'] = $tolerance['message'];
 					$statusCode = 406;
-				return view::responseJson($data, $statusCode);
-
+				    return view::responseJson($data, $statusCode);
 				}
 
 				if( $vehicleModule->is_available($vehicle_id) )
 				{
-
 					if(!$bookingModule->is_reserved($vehicle_id, $keys['startdatetime'], $keys['enddatetime']))
 					{
-
 						if($lastID = $bookingModule->addBooking($keys))
 						{
-
-							
 							$data['message'] = 'New Booking created with ';
-
 							if(!$clientModule->isClient($client_id, $vendor_id))
-							{							
-								
+							{
 								$data['message'] .= ($role_id == 3) ? "New Client" : "New Vendor ";
-								
 								$clientModule->addClient($client_id, $vendor_id);
-
 							}
-
 							$data['message'] .= ($role_id == 3) ? "Existing Client" : "Existing Vendor ";
 							$statusCode = 200;
 							return view::responseJson($data, $statusCode);
-
-							
 						}
 						else {
-
 							$data['message'] = "Error While Adding Booking";
 							$statusCode = 500;
 							return view::responseJson($data, $statusCode);
-
 						}
-
 					}
 					else {
 						$data['message'] = "Not available with provided date and time";
 						$statusCode = 500;
 						return view::responseJson($data, $statusCode);
 					}
-					
 				}
-
 				else {
 						$data['message'] = "Vehicle is not avaible";
 						$statusCode = 500;
 						return view::responseJson($data, $statusCode);
 				}
-
 			}
-
-
     	}
     	else {
-
     		return $this->uaReponse();
-
     	}
 
 
@@ -318,11 +205,10 @@ class bookingCtrl extends appCtrl {
 		                $data['status'] = false;
 		            }			
 
-					
 				}
 				else {	
 					$statusCode = 403;
-		            $data['message'] = 'Not cancelled hence cannot be removed';
+		            $data['message'] = 'Status other than cancelled cannot be removed';
 		            $data['type'] = 'failed';
 		            $data['status'] = false;			
 				}          
@@ -347,118 +233,147 @@ class bookingCtrl extends appCtrl {
 
     public function update()
     {
-      $id = $this->getID();
-      $_POST = Route::$_PUT;
-
-      $doUpdate = true;
-
-    if($bookingData = $this->DB->getbyId($id)->returnData())
-    {
-        // valid record found with this id
-            $keys = array_keys($_POST);
-
-            $vehicle_id = $bookingData[0]['vehicle_id'];
-            $bookingId = $bookingData[0]['id'];
-
-
+        // this has got over bloaded this should only be used to just manage the updates in the status
+        $id = $this->getID();
+        $_POST = Route::$_PUT;
+        $bookingModule = $this->load('module', 'booking');
+        if($bookingData = $bookingModule->getSingle($id))
+        {// valid record found with this id
+            $vehicle_id = $bookingData[0][0]['vehicle_id'];
+            $bookingId = $bookingData[0][0]['id'];
+            $vehicleMileage = $bookingData[0][0]['mileage'];
 
             $datetimeStamp = date('Y-m-d H:i:s');
+            $nulldateTime = '1000-01-01 00:00:00';
 
+            $keys = array_keys($_POST);
             $keys = $this->DB->sanitize($keys);
 
-            if(isset($keys['status']) && $keys['status'] == 'initiated')
-            {		
-            	// check simultanous initiation of same vehicles
-				if($this->checkInitiated($vehicle_id) == true)
-				{
-					$doUpdate = false;
-				}
+            if($keys['status'] == "initiated"){
 
+                $keys['initiated_at'] = $datetimeStamp;
+                $keys['completed_at'] = $nulldateTime;
+                $keys['startMileage'] = $vehicleMileage;
+                $keys['endMileage'] = "0";
 
-			}
-			elseif (isset($keys['status']) && $keys['status'] == 'completed')
-			{
-				$keys['completed_at'] = $datetimeStamp;
-			}
-
-			elseif (isset($keys['status']) && $keys['status'] == 'cancelled')
-			{
-
-				$nulldateTime = '1000-01-01 00:00:00';
-				$keys['completed_at'] = $nulldateTime;
-				$keys['initiated_at'] = $nulldateTime;
-
-				$keys['startMileage'] = "0";
-				$keys['endMileage'] = "0";
-			}
-
-			if($doUpdate)
-			{
-				// on legal intiated status 
-					
-
-				if($keys['status'] == 'cancelled')
-				{
-
-					$keys['completed_at'] = $nulldateTime;
-					$keys['initiated_at'] = $nulldateTime;
-
-				}	
-				else {
-					$keys['initiated_at'] = $datetimeStamp;
-				}
-
-				$startMileage = view::fetchRoute('api/vehicles/available/'.$vehicle_id)[0]['mileage'];
-
-				if($keys['status'] !== 'cancelled')
-				{
-					$keys['startMileage'] = $startMileage;	
-				}
-
-				
-
-				if($this->DB->update($keys, $id))
-            	{
-	                // found and updated
-	                $data['message'] = "Record Updated";
-	                $data['type'] = "success";
-	                $data['status'] = true;
-	                $data['keys'] = $keys;
-	                $statusCode = 200;
-                if($keys['status'] == 'completed')
+                if($bookingModule->updateStatus($keys, $bookingId))
                 {
-                	$vehicle_id = $bookingData[0]['vehicle_id'];
-                	
-					$pushData = array('mileage' => $keys['endMileage']);
-
-					$res = Route::crossFire("api/vehicles/{$vehicle_id}", 'PUT', $pushData);
-
-
-					$this->generateInvoice($bookingId);
-					$this->DB->table = 'bookings';
+                    $data['message'] = "Booking Initialized";
+                    $data['type'] = "success";
+                    $data['status'] = true;
+                    $data['keys'] = $keys;
+                    $statusCode = 200;
+                }
+                else {
+                    $data['message'] = "Failed to Initialise booking";
+                    $data['type'] = "error";
+                    $data['status'] = false;
+                    $data['keys'] = $keys;
+                    $statusCode = 500;
                 }
 
             }
+            elseif($keys['status'] == "cancelled"){
 
-            else
+                $keys['completed_at'] = $nulldateTime;
+                $keys['initiated_at'] = $nulldateTime;
+                $keys['startMileage'] = "0";
+                $keys['endMileage'] = "0";
+
+                if($bookingModule->updateStatus($keys, $bookingId))
                 {
-                    // found but not updated
-                    $data['message'] = "Record cannot be updated";
+                    $data['message'] = "Cancellation Done";
+                    $data['type'] = "success";
+                    $data['status'] = true;
+                    $data['keys'] = $keys;
+                    $statusCode = 200;
+                }
+                else {
+                    $data['message'] = "Failed during Cancellation";
                     $data['type'] = "error";
                     $data['status'] = false;
+                    $data['keys'] = $keys;
                     $statusCode = 500;
-                }	
-			}
+                }
 
-			else {
+            }
+            elseif($keys['status'] == "completed"){
 
-				    $data['message'] = "Simultanious Initiation on vehicle not allowed";
+                $keys['completed_at'] = $datetimeStamp;
+                if(isset($keys['initiated_at'])) {unset($keys['initiated_at']);}
+
+                $keys['startMileage'] = $vehicleMileage;
+                $keys['completed_at'] = $datetimeStamp;
+                // update data on booking table then update vehicle and generate invoice
+
+                if($vehicleMileage < (int) $keys['endMileage'] )
+                { // only if end mileage is greater then start mileage
+
+                    if($bookingModule->updateStatus($keys, $bookingId))
+                    {
+                        $pushData = array('mileage' => $keys['endMileage']);
+                        $vehicleModule = $this->load('module', 'vehicle');
+                        $vehicleModule->updateMileage($pushData, $vehicle_id);
+                        $invoiceModule = $this->load('module', 'invoice');
+                        $invoiceModule->generateInvoice($bookingId);
+
+                        $data['message'] = "Invoice Generated and Vehicle Updated";
+                        $data['type'] = "success";
+                        $data['status'] = true;
+                        $data['keys'] = $keys;
+                        $statusCode = 200;
+
+                    }
+                    else {
+                        $data['message'] = "Cannot updated complete completion";
+                        $data['type'] = "error";
+                        $data['status'] = false;
+                        $data['keys'] = $keys;
+                        $statusCode = 500;
+
+                    }
+                }
+                else {
+
+                    $data['message'] = "Failed complete Invoice : Mileage cannot be less than : $vehicleMileage";
                     $data['type'] = "error";
                     $data['status'] = false;
-                    $statusCode = 403;
-			}
+                    $data['keys'] = $keys;
+                    $statusCode = 500;
 
-            
+                }
+
+            }
+            elseif($keys['status'] == "confirmed"){
+
+                $confirmKeys = array('status'=> "confirmed");
+
+                if($bookingModule->updateStatus($confirmKeys,  $bookingId))
+                {
+                    $data['message'] = "Confirmation Completed";
+                    $data['type'] = "success";
+                    $data['status'] = true;
+                    $data['keys'] = $keys;
+                    $statusCode = 200;
+                }
+                else {
+                    $data['message'] = "Confirmation Failed";
+                    $data['type'] = "error";
+                    $data['status'] = false;
+                    $data['keys'] = $keys;
+                    $statusCode = 500;
+                }
+
+            }
+            else {
+
+                $data['message'] = "Un known status Type";
+                $data['type'] = "error";
+                $data['status'] = false;
+                $data['keys'] = $keys;
+                $statusCode = 500;
+            }
+
         }
         else
             {
@@ -468,142 +383,16 @@ class bookingCtrl extends appCtrl {
                 $data['status'] = false;
                 $statusCode = 500;
             }
-
         return view::responseJson($data, $statusCode);
+
     }
-
-
-    public function checkInitiated($vehicleId)
-    {
-
-		$id = (int) $vehicleId;	
-		$status = 'initiated';
-
-		if( $data = $this->DB->build('S')->Colums('id')->Where("vehicle_id = '".$id."'")->Where("status = '".$status."'")->go()->returnData() );
-		{
-			
-			if($data[0]['id'] != null)
-			{
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-
-	}
-
-
-	public function generateInvoice($bookingId)
-	{
-
-		$this->DB->table = 'invoices';
-
-
-		/*
-			$dataFields;
-			$vehicle_id, $bookingId;
-		*/
-
-		if(JwtAuth::validateToken())
-    	{
-    		$user_id = (int) JwtAuth::$user['id'];		
-    	}
-
-
-		if($bData = view::fetchRoute('api/booking/'.$bookingId))
-		{
-			/* preparing to insert booking data some data will be copied to invoice
-
-			id
-			booking_id
-			
-			perHour
-			perDay
-			forHours
-			forDays
-			created_at
-			status
-
-			*/
-
-			$perDay = $bData[0]['perDay'];
-
-			$keys['booking_id'] = $bookingId;
-			$keys['user_id'] = $user_id;
-
-			$keys['perDay'] = $perDay;
-			$keys['status'] = "Unpaid";
-
-			if($this->DB->insert($keys))
-			{
-				return true;
-			}
-
-			else {
-				return $this->DB;
-			}
-
-		}
-
-		else {
-			return false;
-		}
-		
-
-	}
-
-
-	private function isClient($vendor_id, $client_id)
-	{
-
-
-			$this->DB->table = 'vendor_clients';
-			if(JwtAuth::validateToken() && JwtAuth::$user['role_id'] == 4)
-			{
-				$vClientID = (int) JwtAuth::$user['id'];
-			}
-			else {
-				$vClientID = (int) $client_id[0]['user_id'];	
-			}
-
-			
-			if(!$vClient = $this->DB->build('S')->Colums('id')->Where("vendor_id = ". $vendor_id )->Where( "client_id = ". $vClientID )->go()->returnData())
-			{
-
-					$keys2['vendor_id'] = $vendor_id;
-                    $keys2['client_id'] = $vClientID;
-                    $keys2['status'] = 1;
-                    if($r = Route::crossFire("api/vclients", 'POST', $keys2))
-                    {
-                    	return $r;
-                    }
-                    else {
-                    	return 'Failed to Assigned A Client';
-                    }
-				
-			}
-			else {
-				return null;
-			}
-			
-
-	}
-
-
 
 	public function prepareDateTime(&$keys)
 	{
-	
 		$keys['sTime'] = $this->convertToMysqlTime($keys['sTime']);	
 		$keys['eTime'] = $this->convertToMysqlTime($keys['eTime']);
 		$keys['startdatetime'] = $this->mergeDateTime($keys['sDate'], $keys['sTime']);
 		$keys['enddatetime'] = $this->mergeDateTime($keys['eDate'], $keys['eTime']);
-
 	}
-
-
-
-
 
 }

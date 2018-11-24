@@ -39,5 +39,19 @@ class vehicleModule extends appCtrl {
 
 	}
 
+	public function updateMileage(array $data, $vehicle_id)
+    {
+
+        if($result = $this->DB->update($data, $vehicle_id))
+        {
+           return true;
+        }
+        else {
+
+            return false;
+        }
+
+    }
+
 	
 }
