@@ -30,6 +30,17 @@ $route->get('/jwt/admin', 'jwtauthCtrl@adminOnlyProtected');
 $route->get('/checkuser', 'testCtrl@checkUserInfo');
 
 
+$route->get('/features', 'featuresCtrl@index');
+
+$route->get('/features/{id}', 'featuresCtrl@single');
+
+$route->post('/features', 'featuresCtrl@save');
+
+$route->put('/features/{id}', 'featuresCtrl@update');
+
+$route->delete('features/{id}', 'featuresCtrl@delete');
+
+
 
 
 
