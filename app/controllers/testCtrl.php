@@ -463,11 +463,27 @@ class testCtrl extends appCtrl
 		}
 
 
-		
-		$isActive = " v.status = 1 ";
-		$query .= $this->appendQuery($query, $isActive);
+		$filterRolesAr = [1,3];
+    	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $filterRolesAr) )
+    	{
+    			$user_id = (int) JwtAuth::$user['id'];
+    			$role_id = (int) JwtAuth::$user['role_id'];
 
-		
+    			if($role_id == 3)
+    			{
+    				$filterRoles = " v.user_id = 6 ";
+					$query .= $this->appendQuery($query, $filterRoles);			
+    			}
+
+    	}
+    	else {
+
+    		$isActive = " v.status = 1 ";
+			$query .= $this->appendQuery($query, $isActive);
+
+    	}
+
+
 
 		$pageCursor = ($page - 1) * $limit;
 
