@@ -29,6 +29,17 @@ class appCtrl {
 	}
 
 
+	public function emptyRequestResponse()
+	{
+
+		$data['status'] = false;
+    	$data['message'] = "The Request is Empty Process Terminated";
+	    $statusCode = 403;
+    	return view::responseJson($data, $statusCode);
+
+	}
+
+
 
 	public function getID()
 	{
@@ -66,10 +77,17 @@ class appCtrl {
 	public function convertToMysqlTime($rawTime)
     {
   	
-		$tempTime = DateTime::createFromFormat( 'H:i A', $rawTime);
-		$output = $tempTime->format('H:i:s');
-		return $output;	
+		if($this->istime24hrs($rawTime))
+		{
+			return $rawTime;
+		}
+		else {
+			$tempTime = DateTime::createFromFormat( 'H:i A', $rawTime);
+			$output = $tempTime->format('H:i:s');
+			return $output;		
+		}
 
+		
     }
 
     public function mergeDateTime($inputDate, $inputTime)
@@ -196,6 +214,12 @@ class appCtrl {
     {
     	return Date('Y-m-d H:i:s');
     }
+
+
+    public function istime24hrs($timeInput)
+	{	
+		return preg_match("/^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/", $timeInput);
+	}
 
     
 }

@@ -58,6 +58,11 @@ class bookingCtrl extends appCtrl {
     	$allowedRoles = [1,3,4];
     	$data = [];
 
+        if(!isset($_POST)) {
+            return   $this->emptyRequestResponse();
+            exit();
+        }
+
     	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
     		$role_id = (int) JwtAuth::$user['role_id'];
