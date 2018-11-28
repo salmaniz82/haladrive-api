@@ -50,7 +50,7 @@
             exit(0);
         }
 
-        header('Access-Control-Max-Age: 3600');
+        header('Access-Control-Max-Age: 86400');
     }
 
 

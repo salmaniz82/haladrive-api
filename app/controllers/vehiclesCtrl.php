@@ -125,41 +125,33 @@ class vehiclesCtrl extends appCtrl {
 	public function single()
 	{
 
+		$ID = (int) $this->getID();
+		$isLoggedIn = false;
 
 		if(JwtAuth::validateToken()){
 
-		$ID = (int) $this->getID();
-
-		$role_id = (int) JwtAuth::$user['role_id'];
-		$user_id = (int) JwtAuth::$user['id'];
+			
+			$role_id = (int) JwtAuth::$user['role_id'];
+			$user_id = (int) JwtAuth::$user['id'];
+			$isLoggedIn = true;
+		}
 
 		$query = "SELECT v.id as 'id', v.photo as 'photo', v.nameEN as 'carnameEN', v.nameAR as 'carnameAR', v.year as 'year', v.series as 'series', v.vin as 'vin',
 		v.mileage as 'mileage', v.price as 'price', v.owner as 'owner', v.nokeys as 'nokeys', v.acdamage as 'accident_damage', v.status as 'status',
-
 		gBody.titleEN as 'bodystyleEN',
 		gBody.titleAR as 'bodystyleAR',
-
 		gMaker.titleEN as 'makerEN',
 		gMaker.titleAR as 'makerAR',
-
 		gTrans.titleEN as 'transmissionEN',
 		gTrans.titleAR as 'transmissionAR',
-
-
 		gDtrain.titleEN as 'driveTrainEN',
 		gDtrain.titleAR as 'driveTrainAR',
-
 		gEngine.titleEN as 'engineEN',
 		gEngine.titleAR as 'engineAR',
-
 		gFuel.titleEN as 'fuelEN',
 		gFuel.titleAR as 'fuelAR',
-
 		brands.nameEN as 'modelEN',
 		brands.nameAR as 'modelAR'
-
-
-
 		FROM vehicles as v
 		INNER JOIN gsection gBody on v.bodystyle = gBody.id 
 		INNER JOIN gsection gMaker on v.maker = gMaker.id 
@@ -168,30 +160,27 @@ class vehiclesCtrl extends appCtrl {
 		INNER JOIN gsection gEngine on v.engine = gEngine.id 
 		INNER JOIN gsection gFuel on v.fuel = gFuel.id 
 		INNER JOIN brands on v.model_id = brands.id ";
-
-		if($role_id !== 1)
+		if(!$isLoggedIn)
 		{
 			// non-admin users match id and user id
-			$query .= " WHERE v.id = {$ID} AND v.user_id = {$user_id} LIMIT 1";
+			$query .= " WHERE v.id = {$ID} AND v.status = 1 LIMIT 1";
 		}
 		else {
 			// for admin match only id so he can view other vendor data
-
 			$query .= " WHERE v.id = {$ID} LIMIT 1";
 		}
-		
 
+
+
+		
 		if($data['v'] = $this->DB->rawSql($query)->returnData())
 		{
-
-
 			// inject options data into table
 			$this->DB->table = 'v_options';
-			$id = $data['v'][0]['id'];
+			
 			$queryOpt = "select vo.id, vo.options_id, opt.titleEN, opt.titleAR from v_options as vo 
-			INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$id}";
+			INNER JOIN gsection opt on vo.options_id = opt.id where vo.vehicle_id = {$ID}";
 			 
-
 			if($options = $this->DB->rawSql($queryOpt)->returnData())
 			{
 				$data['v'][0]['options'] = $options;
@@ -199,12 +188,8 @@ class vehiclesCtrl extends appCtrl {
 			else {
 				$data['v'][0]['options'] = null;	
 			}
-
 			// inject slides into vehicle array
-
-
 			$this->DB->table = 'slides';
-
 			if ($slides = $this->DB->build('S')->Colums('slide_large')->Where("vehicle_id = '".$ID."'")->go()->returnData()) 
 			{
 				$data['v'][0]['slides']	 = $slides;
@@ -213,34 +198,14 @@ class vehiclesCtrl extends appCtrl {
 				$data['v'][0]['slides'] = null;	
 			}
 		
-
 		$statusCode = 200;
-
-
 		}// @endif $data primary
-
-			else {
-				$data['message'] = 'No Records Yet';
-				$data['debug'] = $this->DB;
-				$data['status'] = false;
-				$statusCode = 500;
-			}
-			
-			
-
-		} // @endif JwtAuth::validateToken()
-
 		else {
-
+			$data['message'] = 'Cannot any active Vehicle';
 			$data['status'] = false;
-			$data['message'] = 'Access Denied Unauthorized Request';
-			$data['userid'] = JwtAuth::$user['role_id'];
-			$statusCode = 401;
-
+			$statusCode = 404;
 		}
-
 		
-
 		view::responseJson($data, $statusCode);
 
 
