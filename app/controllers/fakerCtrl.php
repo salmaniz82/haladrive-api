@@ -47,7 +47,7 @@ class fakerCtrl extends appCtrl
 		$yearAr  = range(2010, 2018);
 
 		$driveTrainAr = range(100,102);
-		$engineAr = range(100,102);
+		$engineAr = range(103,105);
 		$fuelAr = range(106,110);
 		$transmissonAr  = range(98,99);
 		$priceAr = range(100,10000);
