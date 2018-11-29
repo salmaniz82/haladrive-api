@@ -42,6 +42,7 @@ class vclientsCtrl extends appCtrl {
 
         $data = [];
         // server side validation is yet pending for this processing
+        $this->load('external', 'gump.class');
         $gump = new GUMP();
         $_POST = $gump->sanitize($_POST); // You don't have to sanitize, but it's safest to do so.
         $gump->validation_rules(array(

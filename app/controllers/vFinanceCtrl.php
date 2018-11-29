@@ -66,7 +66,7 @@ class vFinanceCtrl extends appCtrl {
 
         $data = [];
 
-        
+        $this->load('external', 'gump.class');
         $gump = new GUMP();
             $_POST = $gump->sanitize($_POST);
             $gump->validation_rules(array(

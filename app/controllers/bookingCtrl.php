@@ -66,6 +66,7 @@ class bookingCtrl extends appCtrl {
     	if( JwtAuth::validateToken() && in_array((int) JwtAuth::$user['role_id'], $allowedRoles) )
     	{
     		$role_id = (int) JwtAuth::$user['role_id'];
+            $this->load('external', 'gump.class');
     		$gump = new GUMP();
 			$_POST = $gump->sanitize($_POST);
 

@@ -4,8 +4,10 @@ $route = new Route();
 
 
 $route->get('/', function() {
+
 	$data = "Welcome to Haladrive API";
 	view::responseJson($data, 200);
+	
 });
 
 
@@ -219,6 +221,9 @@ $route->get('/faker/vehicles/{records}', 'fakerCtrl@vehicleMassInsert');
 $route->get('/faker/options/{start_id}/{end_id}', 'fakerCtrl@optionsMassAttachment');
 
 $route->get('/moduletest', 'moduleTestCtrl@is_available');
+
+
+$route->get('/loadgump', 'moduleTestCtrl@loadgump');
 
 
 $route->get('/updatemileage', 'moduleTestCtrl@updateMileage');

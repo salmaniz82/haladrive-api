@@ -218,6 +218,7 @@ class vehiclesCtrl extends appCtrl {
 		if(JwtAuth::validateToken())
 		{
 
+			$this->load('external', 'gump.class');
 			$gump = new GUMP();
 			$_POST = $gump->sanitize($_POST);
 			$gump->validation_rules(array(

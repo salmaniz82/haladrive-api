@@ -19,13 +19,18 @@
     {
 
         $id = 12139;
-
         $vehicleModule = $this->load('module', 'vehicle');
-
         $data['mileage'] = '321900';
-
         $result = $vehicleModule->updateMileage($data, $id);
 
+    }
+
+
+    public function loadgump()
+    {
+
+    	$this->load('external', 'gump.class');
+    	$gump = new GUMP();
 
     }
 

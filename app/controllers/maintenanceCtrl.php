@@ -77,7 +77,7 @@ class maintenanceCtrl extends appCtrl {
 
         $keys = array('vehicle_id', 'description', 'miles', 'cost');
 
-
+            $this->load('external', 'gump.class');
             $gump = new GUMP();
             $_POST = $gump->sanitize($_POST);
             $gump->validation_rules(array(

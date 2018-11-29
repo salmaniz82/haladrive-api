@@ -122,7 +122,7 @@ class clientsCtrl extends appCtrl {
 	{
          $data = [];
          $gump = new GUMP();
-
+         $this->load('external', 'gump.class');
         $_POST = $gump->sanitize($_POST); // You don't have to sanitize, but it's safest to do so.
 
         $gump->validation_rules(array(

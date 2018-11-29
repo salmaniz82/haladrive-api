@@ -9,10 +9,17 @@ class appCtrl {
 		if($loadType == 'module')
 		{
 			
-			
 			require_once ABSPATH.'modules/'.$Loadentity.'Module.php';
 			$ModuleClass =  $Loadentity.'Module';
 			return new $ModuleClass();
+		}
+
+		elseif($loadType == 'external')
+		{
+			
+			$path = ABSPATH.'external/'.$Loadentity.'.php';
+			require_once($path);
+			
 		}
 
 	}
