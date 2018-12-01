@@ -137,7 +137,7 @@ class vehiclesCtrl extends appCtrl {
 		}
 
 		$query = "SELECT v.id as 'id', v.photo as 'photo', v.nameEN as 'carnameEN', v.nameAR as 'carnameAR', v.year as 'year', v.series as 'series', v.vin as 'vin',
-		v.mileage as 'mileage', v.price as 'price', v.owner as 'owner', v.nokeys as 'nokeys', v.acdamage as 'accident_damage', v.status as 'status',
+		v.mileage as 'mileage', v.price as 'price', v.owner as 'owner', v.nokeys as 'nokeys', v.seats ,v.acdamage as 'accident_damage', v.status as 'status',
 		gBody.titleEN as 'bodystyleEN',
 		gBody.titleAR as 'bodystyleAR',
 		gMaker.titleEN as 'makerEN',
@@ -242,9 +242,10 @@ class vehiclesCtrl extends appCtrl {
 			'fuel'		=> 'required|integer',
 
 			'owner'		=> 'required|integer',
-			'nokeys'		=> 'required|integer',
+			'nokeys'	=> 'required|integer',
 			'acdamage'	=> 'required|integer',
-			'options'	=> 'required'
+			'options'	=> 'required',
+			'seats'		=> 	'required|integer',
 
 		));
 
@@ -270,7 +271,7 @@ class vehiclesCtrl extends appCtrl {
 
 			
 
-			$keys = array('bodystyle', 'maker', 'model_id', 'year', 'nameEN', 'nameAR', 'series', 'vin', 'mileage', 'price', 'trans', 'dtrain', 'engine', 'fuel', 'owner', 'nokeys', 'acdamage');
+			$keys = array('bodystyle', 'maker', 'model_id', 'year', 'nameEN', 'nameAR', 'series', 'vin', 'mileage', 'price', 'trans', 'dtrain', 'engine', 'fuel', 'owner', 'nokeys', 'seats', 'acdamage');
 
 			$postData = $this->DB->sanitize($keys);
 
@@ -317,44 +318,26 @@ class vehiclesCtrl extends appCtrl {
 
 				}
 
+				// prepare add options to options tables with last id;			
+				$optionModule = $this->load('module', 'voptions');
+				$dataset = $optionModule->prepareReturnDatasetArray($lastID, $_POST['options']);
 
-				
-				// prepare add options to options tables with last id;
-
-				$this->DB->table = 'v_options';
-				$options = explode(',', $_POST['options']);
-
-				$dataset['cols'] = array('vehicle_id', 'options_id');
-
-
-				
-				for($i=0; $i<=sizeof($options)-1; $i++) { 
-
-					$dataset['vals'][$i] = array(
-						'vehicle_id'=> $lastID,
-						'options_id'=> (int)$options[$i]
-					);
-
-				}
-
-
-
-					try {
-
-						$this->DB->multiInsert($dataset);
+				if($optionModule->saveOptionsMuliple($dataset))
+				{
 						$data['status'] = true;
 						$data['message'] = 'New Record added to database with options';
 						$data['last_id'] = $lastID;
-						$statusCode = 200;
-						
-					} catch (Exception $e) {
-
-						$data['status'] = false;
-						$data['message'] = 'Vehicle added with failed to save related options data';
 						$data['debug'] = $this->DB;
-						$statusCode = 500;
-						
-					}
+						$statusCode = 200;
+				}
+				else {
+
+					$data['status'] = false;
+					$data['message'] = 'Vehicle added with failed to save related options data';
+					$data['debug'] = $this->DB;
+					$statusCode = 500;
+
+				}
 
 			}
 

@@ -195,7 +195,7 @@ class Database
                 $query .= "'". implode("', '", $value) ."'"; 
                 $query .= " ) ";
 
-                if(!$counter >= sizeof($vals))
+                if($counter != sizeof($vals)-1)
                 {
                     $query .= ",";
                 }
