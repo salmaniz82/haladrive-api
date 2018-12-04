@@ -149,7 +149,14 @@ class vehiclesCtrl extends appCtrl {
 		gEngine.titleEN as 'engineEN',
 		gEngine.titleAR as 'engineAR',
 		gFuel.titleEN as 'fuelEN',
-		gFuel.titleAR as 'fuelAR',
+		gFuel.titleAR as 'fuelAR', 
+		
+		gInterior.titleEN as 'interiorEN',
+		gInterior.titleAR as 'interiorAR',
+
+		gExterior.titleEN as 'exteriorEN',
+		gExterior.titleAR as 'exteriorAR',
+		
 		brands.nameEN as 'modelEN',
 		brands.nameAR as 'modelAR'
 		FROM vehicles as v
@@ -159,6 +166,8 @@ class vehiclesCtrl extends appCtrl {
 		INNER JOIN gsection gDtrain on v.dtrain = gDtrain.id 
 		INNER JOIN gsection gEngine on v.engine = gEngine.id 
 		INNER JOIN gsection gFuel on v.fuel = gFuel.id 
+		INNER JOIN gsection gInterior on v.interior = gInterior.id 
+		INNER JOIN gsection gExterior on v.exterior = gExterior.id 
 		INNER JOIN brands on v.model_id = brands.id ";
 		if(!$isLoggedIn)
 		{
@@ -169,9 +178,6 @@ class vehiclesCtrl extends appCtrl {
 			// for admin match only id so he can view other vendor data
 			$query .= " WHERE v.id = {$ID} LIMIT 1";
 		}
-
-
-
 		
 		if($data['v'] = $this->DB->rawSql($query)->returnData())
 		{
@@ -241,11 +247,14 @@ class vehiclesCtrl extends appCtrl {
 			'engine'	=> 'required|integer',
 			'fuel'		=> 'required|integer',
 
+			'interior'		=> 'required|integer',
+			'exterior'		=> 'required|integer',
+
 			'owner'		=> 'required|integer',
 			'nokeys'	=> 'required|integer',
 			'acdamage'	=> 'required|integer',
 			'options'	=> 'required',
-			'seats'		=> 	'required|integer',
+			'seats'		=> 	'required|integer'
 
 		));
 
@@ -271,7 +280,9 @@ class vehiclesCtrl extends appCtrl {
 
 			
 
-			$keys = array('bodystyle', 'maker', 'model_id', 'year', 'nameEN', 'nameAR', 'series', 'vin', 'mileage', 'price', 'trans', 'dtrain', 'engine', 'fuel', 'owner', 'nokeys', 'seats', 'acdamage');
+			$keys = array(
+				'bodystyle', 'maker', 'model_id', 'year', 'nameEN', 'nameAR', 'series', 'vin', 'mileage', 'price', 'trans', 'dtrain', 'engine', 'fuel', 
+				'interior', 'exterior', 'owner', 'nokeys', 'seats', 'acdamage');
 
 			$postData = $this->DB->sanitize($keys);
 
