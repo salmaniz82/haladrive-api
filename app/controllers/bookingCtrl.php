@@ -146,14 +146,31 @@ class bookingCtrl extends appCtrl {
 					{
 						if($lastID = $bookingModule->addBooking($keys))
 						{
-							$data['message'] = 'New Booking created with ';
+							$data['message'] = 'New Booking created ';
 							if(!$clientModule->isClient($client_id, $vendor_id))
 							{
-								$data['message'] .= ($role_id == 3) ? "New Client" : "New Vendor ";
-								$clientModule->addClient($client_id, $vendor_id);
+								
+                                
+
+								if(!$clientModule->addClient($client_id, $vendor_id))
+                                {
+                                    $data['message'] .= ($role_id == 3) ? " Client assignment failed " : " Vendor Assignment Failed ";
+                                    
+                                }
+
+                                else {
+                                    $data['message'] .= ($role_id == 3) ? "New Client " : " New Vendor ";
+                                }
+
+                                $statusCode = 200;
 							}
-							$data['message'] .= ($role_id == 3) ? "Existing Client" : "Existing Vendor ";
-							$statusCode = 200;
+                            else {
+
+                                $data['message'] .= ($role_id == 3) ? "Existing Client" : "Existing Vendor ";
+                                $statusCode = 200;
+
+                            }
+							
 							return view::responseJson($data, $statusCode);
 						}
 						else {

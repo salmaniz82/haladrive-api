@@ -7,11 +7,8 @@ class clientModule extends appCtrl{
 
 	public function __construct()
 	{
-
-		
 		$this->DB = new Database();
         $this->DB->table = 'clients';
-
 	}
 
 
@@ -41,6 +38,7 @@ class clientModule extends appCtrl{
 			$this->DB->table = 'vendor_clients';
 			$data['vendor_id'] = (int) $vendorID;
 			$data['client_id'] = (int) $clientID;
+			$data['status'] = (int) 1;
 
 			if($result = $this->DB->insert($data))
 			{
@@ -81,6 +79,18 @@ class clientModule extends appCtrl{
 	}
 
 
-	
+	public function saveClientwithDetails($data)
+    {
+
+    	if($this->DB->insert($data))
+    	{
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+
+    }
+
 
 }

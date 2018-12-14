@@ -1,130 +1,112 @@
 <?php 
 
-class userCtrl {
+class userCtrl extends appCtrl {
 
-	public function showLogin() 
-	{
+    public $DB;
 
-		if(Auth::loginStatus())
-		{
-			return header('location: /');
-		}
+    public function __construct()
+    {
 
-		$data['title'] = 'Login';
-    	View::render('login', $data);
+        $this->DB = new Database();
+        $this->DB->table = 'users';
 
-	}
+    }
 
-	public function doLogin() 
-	{
+    public function clientRegister()
+    {
+        
+        if(isset($_POST) && !empty($_POST))
+        {
 
-		if( (isset($_POST['email']) && $_POST['email'] != NULL) && (isset($_POST['password']) && $_POST['password'] != NULL) ) {
+
+            $this->load('external', 'gump.class');
+            $gump = new GUMP();
+            $_POST = $gump->sanitize($_POST);
+
+            $gump->validation_rules(array(
+                'name' => 'required',
+                'email'    =>  'required|valid_email',
+                'password'    =>  'required',
+                'civilno'   => 'required|numeric|exact_len,12',
+                'confirmPassword' => 'required'
+            ));
+
+            $pdata = $gump->run($_POST);
+
+            if($pdata === false)
+            {
+                
+                $statusCode = 406;
+                $data['message'] = "Required fields were missing or provided with incomplete information";
+
+
+            }
+            else if ($_POST['password'] != $_POST['confirmPassword']) {
+                $statusCode = 406;
+                $data['message'] = "Make sure password and confirm are the same";
+            }
+
+            else {
+
+                $keys = array('name', 'email', 'password');
+                $dataKeys = $this->DB->sanitize($keys);
+                $dataKeys['password'] = sha1($dataKeys['password']);
+                $dataKeys['role_id'] = 4;
+
+                if($lastUserId = $this->DB->insert($dataKeys))
+                {
+                                       
+                    $Consumer['user_id'] = $lastUserId;
+                    $Consumer['nameEN'] = $dataKeys['name'];
+                    $Consumer['nameAR'] = $dataKeys['name'];
+                    $Consumer['civilno'] = $_POST['civilno'];
+                    $Consumer['email'] = $dataKeys['email'];
+                    $Consumer['status'] = 1;
+
+
+                    $clientModule = $this->load('module', 'client');
+
+                    if($clientModule->saveClientwithDetails($Consumer))
+                    {
+
+                        $data['message'] = "Registration Successfull";
+                        $statusCode = 200;
+                    }
+                    else {
+
+                        $data['message'] = "Partially Done";
+                        $statusCode = 409;   
+                    }
+
+                } 
+
+                else {
+
+                    $data['message'] = "User Cannnot be created";
+                    $statusCode = 500;
+
+                }
+
+
+            }
+
+
+
+
+        }
+        else {
+
+            $statusCode = 406;
+            $data['message'] = "Cannot process empty request";
+
+        }
+
+
+
+        view::responseJson($data, $statusCode);
+
         
 
-        $creds['email'] = $_POST['email'];
-        $creds['password'] = $_POST['password'];
-
-	        if (filter_var($creds['email'], FILTER_VALIDATE_EMAIL)) 
-	        {          
-	            // do the login stuff
-
-	            if( $user = Auth::attemptLogin($creds) ) 
-	            {
-
-	            		Auth::check()->id = Auth::User()['id'];
-		                header('location: /todos');
-	                
-	            } 
-	            else 
-		        {
-		                $_SESSION['flashMsg'] = 'Invalid Credentials';
-		                $_SESSION['fClass'] = 'error';
-		                header("location: /login");
-
-		        }
-
-
-	        } 
-	        else 
-		    {
-		        $data['message'] = 'Invalid Email';
-		    }
-	     
-    	} 
-    	else 
-	    {
-	    	 $data['message'] = 'creds not found';    
-	    }
-
-		   
-	    View::render('page', $data);
-
-	
-
-	}
-
-	public function logout() 
-	{
-		
-		Auth::logout();
-		header('location: /login');
-		
-    	
-	}
-
-	public function showProfile()
-	{
-		
-
-	if( !Auth::loginStatus() ) 
-     {
-        
-    	$data['message'] = 'This is protected you are not allowed to see details unless your are logged IN';
-    	return View::render('page', $data);
-     }
-
-  
-     	$data['title'] = 'Profile';
-		$data['message'] = 'User Profile Details can be seen here ...';
-		$data['profile'] =  Auth::User();
-    	View::render('page', $data);
-	}
-
-
-	public function showRegister()
-	{
-		$data['title'] = 'Register';
-		$data['message'] = 'Please enter your details for signing up';
-		View::render('register', $data);
-	}
-
-	public function doRegister()
-	{
-		
-	}
-
-	public function checkReturnAuthenticatedUser()
-	{
-
-		if(Auth::loginStatus())
-		{
-			
-			$response['status'] = true;
-			$response['userCount'] = 1;
-			$response['user'] = Auth::User();
-			
-		}
-		else
-		{
-
-			$response['status'] = false;
-			$response['userCount'] = 0;
-			
-
-		}
-
-	View::responseJson($response);
-
-	}
+    }
 
 }

@@ -35,6 +35,25 @@
     }
 
 
+    public function testcli()
+    {
+
+        $clientModule = $this->load('module', 'client');
+        $client_id = 500;        
+        $vendor_id = 500;
+
+        if($clientModule->addClient($client_id, $vendor_id))
+        {
+            echo "done";
+        }
+        else {
+            echo "failed";
+        }
+
+
+    }
+
+
 
 
 

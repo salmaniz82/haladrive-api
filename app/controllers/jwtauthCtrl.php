@@ -95,11 +95,8 @@ class jwtauthCtrl extends appCtrl {
 
 		if( (JwtAuth::validateToken() ) && ( JwtAuth::$user['role_id'] == 3 || JwtAuth::$user['role_id'] == 1) )
 		{
-
-
-			// ONLY ADMIN AND VENDOR CAN CREATE CONSUMER USERS 
-
-			if(!isset($_POST['email']) && isset($_POST['password']))
+			// ONLY ADMIN AND VENDOR CAN CREATE CONSUMER USERS
+			if(!isset($_POST['email']) && !isset($_POST['password']))
 			{
 				$data['message'] = 'No Post values provided';
 				$statusCode = 204;
@@ -109,6 +106,7 @@ class jwtauthCtrl extends appCtrl {
 			}
 
 			else {
+                $this->load('external', 'gump.class');
 				$gump = new GUMP();
 		        $_POST = $gump->sanitize($_POST); 
 		        $gump->validation_rules(array(

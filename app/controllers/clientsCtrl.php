@@ -6,7 +6,7 @@ class clientsCtrl extends appCtrl {
 
 	public function __construct()
 	{
-		
+
         if(!JwtAuth::validateToken())
         {
 
@@ -16,11 +16,11 @@ class clientsCtrl extends appCtrl {
             view::responseJson($data, $statusCode);
             die();
         }
-        
+
 
 
         $this->DB = new Database();
-        $this->DB->table = 'clients';    
+        $this->DB->table = 'clients';
 
 	}
 

@@ -11,18 +11,16 @@ $route->get('/', function() {
 });
 
 
-
-
-
 $route->get('/jwt/check', 'jwtauthCtrl@check');
 
 $route->post('/jwt/login', 'jwtauthCtrl@login');
 
 $route->post('/jwt/register', 'jwtauthCtrl@register');
 
-
-
 $route->post('/jwt/consumer-register', 'jwtauthCtrl@consumerRegister');
+
+
+$route->post('/api/consumer/register', 'userCtrl@clientRegister');
 
 $route->get('/jwt/validate', 'jwtauthCtrl@validateToken');
 
@@ -214,20 +212,9 @@ $route->put('/api/maintain/{id}', 'maintenanceCtrl@update');
 
 $route->delete('/api/maintain/{id}', 'maintenanceCtrl@delete');
 
-
-
 $route->get('/faker/vehicles/{records}', 'fakerCtrl@vehicleMassInsert');
 
 $route->get('/faker/options/{start_id}/{end_id}', 'fakerCtrl@optionsMassAttachment');
-
-$route->get('/moduletest', 'moduleTestCtrl@is_available');
-
-
-$route->get('/loadgump', 'moduleTestCtrl@loadgump');
-
-
-$route->get('/updatemileage', 'moduleTestCtrl@updateMileage');
-
 
 
 $route->otherwise( function() {
