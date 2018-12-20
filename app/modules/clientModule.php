@@ -93,4 +93,13 @@ class clientModule extends appCtrl{
     }
 
 
+
+    public function existbyCivilId($civilId)
+	{
+		
+		return $this->DB->pluck('civilno')->where("civilno = $civilId");
+
+	}
+
+
 }

@@ -20,6 +20,9 @@ class userCtrl extends appCtrl {
 
 
             $this->load('external', 'gump.class');
+
+            $clientModule = $this->load('module', 'client');
+
             $gump = new GUMP();
             $_POST = $gump->sanitize($_POST);
 
@@ -28,7 +31,7 @@ class userCtrl extends appCtrl {
                 'email'    =>  'required|valid_email',
                 'password'    =>  'required',
                 'civilno'   => 'required|numeric|exact_len,12',
-                'confirmPassword' => 'required'
+                'cpassword' => 'required'
             ));
 
             $pdata = $gump->run($_POST);
@@ -41,9 +44,17 @@ class userCtrl extends appCtrl {
 
 
             }
-            else if ($_POST['password'] != $_POST['confirmPassword']) {
+            else if ($_POST['password'] != $_POST['cpassword']) {
                 $statusCode = 406;
                 $data['message'] = "Make sure password and confirm are the same";
+            }
+
+            else if ($clientModule->existbyCivilId($_POST['civilno']))
+            {
+
+                $statusCode = 406;
+                $data['message'] = "Cleint Already Exist with Civil Id";
+
             }
 
             else {
@@ -64,7 +75,7 @@ class userCtrl extends appCtrl {
                     $Consumer['status'] = 1;
 
 
-                    $clientModule = $this->load('module', 'client');
+                    
 
                     if($clientModule->saveClientwithDetails($Consumer))
                     {

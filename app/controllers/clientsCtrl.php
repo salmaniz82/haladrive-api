@@ -95,7 +95,9 @@ class clientsCtrl extends appCtrl {
         $id = $this->getID();
         $userID = (int) $this->jwtUserId();
 
-        $query = "SELECT c.id, vc.vendor_id, vc.client_id, c.nameEN, c.nameAR, c.mobile, c.email, c.civilno, c.mobile, c.mobile2, c.status from vendor_clients as vc INNER JOIN clients c on c.id = vc.client_id WHERE vc.vendor_id = $userID AND c.id = $id";
+        $query = "SELECT c.id, vc.vendor_id, vc.client_id, c.nameEN, c.nameAR, c.mobile, c.email, c.civilno, c.mobile, c.mobile2, c.status 
+        from vendor_clients as vc 
+        INNER JOIN clients c on c.user_id = vc.client_id WHERE vc.vendor_id = $userID AND c.id = $id";
 
         if(is_numeric($id))
         {
