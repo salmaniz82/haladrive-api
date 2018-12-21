@@ -98,11 +98,7 @@ class userCtrl extends appCtrl {
 
                 }
 
-
             }
-
-
-
 
         }
         else {

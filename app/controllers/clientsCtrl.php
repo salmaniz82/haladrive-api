@@ -121,7 +121,14 @@ class clientsCtrl extends appCtrl {
 	}
 
 	public function save()
-	{
+	{     
+        /*
+            1. validation
+            2. duplicate entry check
+            3. register consumer in users table
+            4. add information in client table
+            5. link client and vendor in vendor_clients table
+        */
          $data = [];
          $this->load('external', 'gump.class');
          $gump = new GUMP();
@@ -132,8 +139,8 @@ class clientsCtrl extends appCtrl {
             'nameEN'  => 'required',
             'nameAR'  => 'required',
             'email'   => 'required|valid_email',
-            'mobile'  => 'required|phone_number',
-            'mobile2' => 'phone_number',
+            'mobile'  => 'required|integer',
+            'mobile2' => 'numeric',
             'civilno' => 'required|numeric|exact_len,12',
         ));
 
@@ -160,43 +167,63 @@ class clientsCtrl extends appCtrl {
 
             // adding registration data
 
-                $keys = array('nameEN', 'nameAR', 'mobile', 'email', 'mobile2', 'civilno');
+                $clientModule = $this->load('module', 'client');
+                $userModule = $this->load('module', 'user');
+
+                $newUserEmail = $_POST['email'];
+
+                
+
+                $keys = array('nameEN', 'nameAR', 'email', 'civilno', 'mobile', 'mobile2');
                 $keys = $this->DB->sanitize($keys);
 
             
                 // registering user as a consumer
                 $consumer['name'] = $keys['nameEN'];
                 $consumer['email'] = $keys['email'];
-                $cfx = Route::crossFire("jwt/consumer-register", 'POST', $consumer);
-                $consumer_Id =  $cfx['consumer_Id'];
 
-                // assigning a consumer to a vendor
-                $keys2['vendor_id'] = JwtAuth::$user['id'];
-                $keys2['client_id'] = $consumer_Id;
-                $keys2['status'] = 1;
-                $data['client_assignment'] = Route::crossFire("api/vclients", 'POST', $keys2);
-                     
-            
+                if($userModule->emailExists($newUserEmail))
+                {
 
-            // adding in clients table    
-            
-            $keys['user_id'] = $consumer_Id;
-            $keys['status'] = 1;
+                    $statusCode = 422;
+                    $data['status'] = false;
+                    $data['message'] = 'User Already Exist with Email';
+                }
 
-            if($lastID = $this->DB->insert($keys))
-            {
-                $statusCode = 200;    
-                $data['lastID'] = $lastID;
-                $data['message'] = 'Record Added with Success';
-                $data['status'] = true;
-            }
-            else {
-                $statusCode = 503;    
-                $data['message'] = 'Record cannot be added at this point please try again';
-                $data['status'] = false;
-                $data['debug'] = $this->DB;
-            }
+                else if ($clientModule->existbyCivilId($_POST['civilno']))
+                {
+                    $statusCode = 422;
+                    $data['status'] = false;
+                    $data['message'] = 'User With Civil ID alreadty Exists';
+                }
 
+                else {
+
+                    if($insertId = $userModule->registerNewConsumer($consumer))
+                    {
+                        $consumer_Id = $insertId;
+                        // assigning a consumer to a vendor
+                        $vendorID = JwtAuth::$user['id'];
+                        $clientID = $consumer_Id;                      
+                        // adding in clients table    
+                        $keys['user_id'] = $consumer_Id;
+                        $keys['status'] = 1;
+
+                        if($clientModule->saveClientwithDetails($keys))
+                        {
+                            $clientModule->addClient($clientID, $vendorID);
+                            $statusCode = 200;    
+                            $data['message'] = 'Record Added with Success';
+                            $data['status'] = true;
+                        }
+                        else {
+                            $statusCode = 503;    
+                            $data['message'] = 'Record cannot be added at this point please try again';
+                            $data['status'] = false;
+                        }
+                    }
+
+                }
 
         }
            
@@ -217,6 +244,14 @@ class clientsCtrl extends appCtrl {
             $keys = array_keys($_POST);
 
             $keys = $this->DB->sanitize($keys);
+
+
+            if(isset($keys['vendor_id'])) {unset($keys['vendor_id']);}
+
+            if(isset($keys['client_id'])) {unset($keys['client_id']);}
+
+
+
             if($this->DB->update($keys, $id))
             {
                 // found and updated
@@ -233,6 +268,10 @@ class clientsCtrl extends appCtrl {
                     $data['message'] = "Client cannot be updated";
                     $data['type'] = "error";
                     $data['status'] = false;
+
+                    $data['debug'] = $this->DB;
+
+
                     $statusCode = 500;
                 }
         }

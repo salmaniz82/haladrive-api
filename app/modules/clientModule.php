@@ -45,6 +45,7 @@ class clientModule extends appCtrl{
 				
 			}
 			else {
+				
 				$result = false;
 			}
 
@@ -75,18 +76,18 @@ class clientModule extends appCtrl{
 			return false;
 		}
 
-
 	}
 
 
 	public function saveClientwithDetails($data)
     {
 
-    	if($this->DB->insert($data))
+    	if($lastId = $this->DB->insert($data))
     	{
-    		return true;
+    		return $lastId;
     	}
     	else {
+
     		return false;
     	}
 
