@@ -22,6 +22,8 @@ $route->post('/jwt/consumer-register', 'jwtauthCtrl@consumerRegister');
 
 $route->post('/api/consumer/register', 'userCtrl@clientRegister');
 
+$route->put('/api/changepassword', 'userCtrl@changePassword');
+
 $route->get('/jwt/validate', 'jwtauthCtrl@validateToken');
 
 $route->get('/jwt/admin', 'jwtauthCtrl@adminOnlyProtected');

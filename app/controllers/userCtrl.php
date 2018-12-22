@@ -96,23 +96,82 @@ class userCtrl extends appCtrl {
                     $data['message'] = "User Cannnot be created";
                     $statusCode = 500;
 
-                }
+               }
 
             }
-
         }
         else {
 
             $statusCode = 406;
             $data['message'] = "Cannot process empty request";
-
         }
-
-
 
         view::responseJson($data, $statusCode);
 
-        
+    }
+
+
+    public function changePassword() 
+    {
+
+        $_POST = Route::$_PUT;
+
+        $oldPassword = (isset($_POST['oldPass'])) ? $_POST['oldPass'] : null;
+        $newPassword = (isset($_POST['newPass'])) ? $_POST['newPass'] : null;
+        $email = (isset($_POST['email'])) ? $_POST['email'] : null;
+
+        if(!empty($_POST['oldPass']) && !empty($_POST['newPass']) && !empty($_POST['email']))
+        {
+                if( JwtAuth::validateToken() && (JwtAuth::$user['email'] == $email || JwtAuth::$user['role_id'] == 1) )
+                {
+
+                    if($oldPassword != $newPassword)
+                    {
+
+
+                        $userModule = $this->load('module', 'user');
+                        $creds = array(
+                            'email' => $email,
+                            'password' => $oldPassword,
+                            );
+
+                           if($userData = $userModule->userByCreds($creds))
+                            {               
+                                $user_id = $userData[0]['id'];
+                                if($userModule->changePassword($user_id, $newPassword))
+                                {
+                                    $statusCode = 200;
+                                    $data['message'] = "Password updated Success";
+                                }
+                                else {
+                                    $statusCode = 501;
+                                    $data['message'] = "Password updated Failed";
+                                }
+
+                            }
+                            else {
+                                $statusCode = 500;
+                                $data['message'] = "User Not Found";        
+                            }
+                    }
+                    else {
+                        $data['message'] = "Current and New Password cannot be same";
+                        $statusCode = 400;
+                    }
+
+            }
+            else {
+                $statusCode = 401;
+                $data['message'] = "Access Denied";
+            }
+        }
+        else {
+
+            $data['message'] = "Request body is incomplete or not fomratted";
+            $statusCode = 400;
+        }
+
+        View::responseJson($data, $statusCode);
 
     }
 

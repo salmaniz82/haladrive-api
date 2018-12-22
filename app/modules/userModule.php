@@ -50,5 +50,27 @@ class userModule extends appCtrl{
 	}
 
 
+	public function userByCreds($creds)
+	{
+
+		return $this->DB->returnSet($creds['email'], $creds['password']);
+
+	}
+
+	public function changePassword($id, $newPassword)
+	{
+
+		$data['password'] = sha1($newPassword);
+
+		if($this->DB->update($data, $id))
+		{
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+
 
 }
