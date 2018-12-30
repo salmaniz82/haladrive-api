@@ -471,7 +471,7 @@ class testCtrl extends appCtrl
 
     			if($role_id == 3)
     			{
-    				$filterRoles = " v.user_id = 6 ";
+    				$filterRoles = " v.user_id = $user_id ";
 					$query .= $this->appendQuery($query, $filterRoles);			
     			}
 
