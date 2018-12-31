@@ -227,8 +227,6 @@ class bookingModule extends appCtrl {
 		{
 			// there is no timeThreshold provided 
 
-
-
 			$startPoint = new DateTime($startPoint);
 			$endPoint = new DateTime($endPoint);
 
@@ -246,7 +244,6 @@ class bookingModule extends appCtrl {
 			else if ($startPoint < $endPoint) 
 			{
 
-				echo 'start is less';
 				return array (
 
 					'status' => true,
@@ -267,8 +264,6 @@ class bookingModule extends appCtrl {
 			}
 			else {
 
-				echo 'Expected Dates format is YYYY-MM-DD';
-
 				return array (
 
 					'status' => false,
@@ -286,9 +281,11 @@ class bookingModule extends appCtrl {
 			if($this->validateDateTimeFormat($startPoint) && $this->validateDateTimeFormat($endPoint))
 			{
 
+				$currentDateTime = $this->Dt_24();
 				
 				$dateTimeObj = new Datetime();
 
+				$currentDateTimeObj = $dateTimeObj->createFromFormat('Y-m-d H:i:s', $currentDateTime);
 				$startDateTimeObj = $dateTimeObj->createFromFormat('Y-m-d H:i:s', $startPoint);
 				$endDateTimeObj = $dateTimeObj->createFromFormat('Y-m-d H:i:s', $endPoint);
 
@@ -297,7 +294,15 @@ class bookingModule extends appCtrl {
 
 				$hoursTreshold = (double) $hoursTreshold;
 
-				if($startDateTimeObj > $endDateTimeObj)
+				if($currentDateTimeObj > $startDateTimeObj)
+				{
+					return array (
+						'status' => false,
+						'message' => 'Booking datetime of history are not allowed'
+					);	
+				}
+
+				else if($startDateTimeObj > $endDateTimeObj)
 				{
 					return array (
 
@@ -316,7 +321,7 @@ class bookingModule extends appCtrl {
 
 					return array (
 						'status' => false,
-						'message' => "Booking duration is not under ". $hoursTreshold . ' mark '
+						'message' => "Duration less than ". $hoursTreshold . ' Hours not allowed '
 					);
 					
 				}
