@@ -219,6 +219,11 @@ $route->get('/faker/vehicles/{records}', 'fakerCtrl@vehicleMassInsert');
 $route->get('/faker/options/{start_id}/{end_id}', 'fakerCtrl@optionsMassAttachment');
 
 
+
+
+$route->get('/datetest', 'moduleTestCtrl@dateEvaluationTest');
+
+
 $route->otherwise( function() {
 
     $data['message'] = 'Request Not found';

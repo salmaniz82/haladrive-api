@@ -1,42 +1,22 @@
-<?php header('Access-Control-Allow-Origin: http://localhost');
+<?php
+
+if($_SERVER['HTTP_HOST'] == 'api.haladrive.local')
+{
+	header('Access-Control-Allow-Origin: http://localhost');
+}
+else {
+
+	header('Access-Control-Allow-Origin: https://app.haladrive.com');
+
+}
+
+ 
 	header('Access-Control-Expose-Headers: *');
 	header('Access-Control-Allow-Credentials: true');
-
-
-
-		/*
-
-		if( isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != "")
-            {
-                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");   
-            }
-            else {
-                header("Access-Control-Allow-Origin: *");
-            }
-
-        // Access-Control headers are received during OPTIONS requests
-        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') 
-        {
-
-            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
-                header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-
-            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
-                header("Access-Control-Allow-Headers:  {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
-            exit(0);
-        }
-
-        */
-
-
-        header('Access-Control-Max-Age: 86400');
-        header("Content-Type: text/event-stream");
-		header("Cache-Control: no-cache");
-		header("Connection: keep-alive");
-
-
-
-
+    header('Access-Control-Max-Age: 86400');
+    header("Content-Type: text/event-stream");
+	header("Cache-Control: no-cache");
+	header("Connection: keep-alive");
 
 		$lastId = $_SERVER["HTTP_LAST_EVENT_ID"];
 		if (isset($lastId) && !empty($lastId) && is_numeric($lastId)) {
