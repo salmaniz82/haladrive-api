@@ -217,6 +217,16 @@ class appCtrl {
     }
 
 
+    public function isValidDateTime($inputDateTime)
+    {
+
+
+    	return DateTime::createFromFormat('Y-m-d H:i:s', $inputDateTime);
+
+
+    }
+
+
     public function Dt_24()
     {
     	return Date('Y-m-d H:i:s');

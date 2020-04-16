@@ -543,7 +543,7 @@ class testCtrl extends appCtrl
 				$statusCode = 500;
 			}
 
-		view::responseJson($data, $statusCode);
+		return view::responseJson($data, $statusCode);
 
 	}
 

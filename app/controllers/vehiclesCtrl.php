@@ -270,7 +270,8 @@ class vehiclesCtrl extends appCtrl {
 			$data['status'] = false;
 			$data['message'] = 'Required fields were missing or supplied with invalid format';
 			$data['errorlist'] = $gump->get_errors_array();
-			$statusCode = 422;
+			$statusCode = 406;
+			$data['gump'] = $gump;
 			
 		}
 
